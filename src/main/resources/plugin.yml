@@ -1,0 +1,4 @@
+name: KwampaRR
+version: '${project.version}'
+main: jcn.kwamparr.KwampaRR
+api-version: '1.20'

@@ -1,0 +1,4 @@
+name: KwampaRR
+version: '2.0'
+main: jcn.kwamparr.KwampaRR
+api-version: '1.20'
