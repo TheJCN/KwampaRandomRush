@@ -1,1 +1,5 @@
-//Список всех предметов в
+#Список предметов для выдачи
+List:
+  BREAD
+  COBBLESTONE
+  DIAMOND_SWORD
