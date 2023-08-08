@@ -21,18 +21,23 @@ public class Waiting implements Listener {
 
     @EventHandler
     public void opPlayerJoin(PlayerJoinEvent event){
+        if(gameManager.getGameState() != GameState.Waiting) {
+            return;
+        }
         Player player = event.getPlayer();
         playerList.add(player);
         if(playerList.size() == 2){
             Bukkit.broadcastMessage("Игра начинается! Приготевтесь!");
             gameManager.setGameState(GameState.Teleporting);
-            TimeBefore(playerList);
-
+            TimeBeforeGame(playerList);
         }
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event){
+        if(gameManager.getGameState() != GameState.Waiting) {
+            return;
+        }
         Player player = event.getPlayer();
         playerList.remove(player);
         if(playerList.size() < 2){
@@ -40,7 +45,7 @@ public class Waiting implements Listener {
         }
     }
 
-    public void TimeBefore(List<Player> playerList){
+    public void TimeBeforeGame(List<Player> playerList){
         new BukkitRunnable() {
             int timer = 10;
 
@@ -53,7 +58,7 @@ public class Waiting implements Listener {
                     } else {
                         Bukkit.broadcastMessage("Игра началалась!");
                         gameManager.setGameState(GameState.Active);
-                        AcitveGame acitveGame = new AcitveGame(gameManager);
+                        AcitveGame acitveGame = new AcitveGame(gameManager, playerList);
                     }
                 }
                 else {
