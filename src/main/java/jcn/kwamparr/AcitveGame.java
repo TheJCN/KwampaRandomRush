@@ -1,6 +1,5 @@
 package jcn.kwamparr;
 
-import com.sun.crypto.provider.BlowfishKeyGenerator;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -11,7 +10,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
@@ -19,14 +17,17 @@ import java.util.List;
 import java.util.Random;
 import java.util.logging.Logger;
 
-public class AcitveGame  extends JavaPlugin implements Listener{
+public class AcitveGame implements Listener{
+
     private GameManager gameManager;
-
     private List<Player> playerList;
+    private KwampaRR plugin;
 
-    public AcitveGame(GameManager gameManager, List<Player> playerList) {
+    public AcitveGame(GameManager gameManager, List<Player> playerList, KwampaRR plugin) {
         this.gameManager = gameManager;
         this.playerList = playerList;
+        this.plugin = plugin;
+
     }
 
     public void LogicGame(){
@@ -39,18 +40,21 @@ public class AcitveGame  extends JavaPlugin implements Listener{
         }
     }
     public void RandomItem() {
-        FileConfiguration config = getConfig();
+        FileConfiguration config = plugin.getConfig();
         List<String> itemStrings = config.getStringList("List");
         List<Material> materials = new ArrayList<>();
-        int ValueOfItems = materials.size();
+
         for (String itemString : itemStrings) {
             try {
                 Material material = Material.valueOf(itemString);
                 materials.add(material);
             } catch (IllegalArgumentException e) {
-                getLogger().warning("Недопустимый предмет: " + itemString);
+                plugin.getLogger().warning("Недопустимый предмет: " + itemString);
             }
         }
+
+        int ValueOfItems = materials.size(); // Вычисляем размер списка materials
+
         new BukkitRunnable(){
             @Override
             public void run() {
@@ -61,10 +65,10 @@ public class AcitveGame  extends JavaPlugin implements Listener{
                         player.getInventory().setItemInMainHand(new ItemStack(materials.get(randomIndex)));
                     }
                 }
-
             }
-        }.runTaskTimer(Bukkit.getPluginManager().getPlugin("KwampaRR"), 0L, 200L);
+        }.runTaskTimer(plugin, 0L, 200L);
     }
+
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event){
@@ -74,7 +78,6 @@ public class AcitveGame  extends JavaPlugin implements Listener{
         if(playerList.size() == 0){
             EndOfTheGame();
         }
-
     }
 
     @EventHandler
@@ -93,8 +96,9 @@ public class AcitveGame  extends JavaPlugin implements Listener{
     }
 
     public void EndOfTheGame(){
-        Bukkit.broadcastMessage("Выиграл - " +playerList.get(0).getPlayer().getDisplayName());
+        Bukkit.broadcastMessage("Выиграл - " + playerList.get(0).getPlayer().getDisplayName());
         gameManager.setGameState(GameState.Restart);
+        TimerBeforekick();
     }
 
     public void TimerBeforekick(){
@@ -108,6 +112,10 @@ public class AcitveGame  extends JavaPlugin implements Listener{
                     timer--;
                 }
             }
+        }.runTaskTimer(Bukkit.getPluginManager().getPlugin("KwampaRR"), 0L, 20L);
+        for(Player player : Bukkit.getOnlinePlayers()){
+            player.kickPlayer("Игра законченна");
         }
+        gameManager.setGameState(GameState.Restart);
     }
  }

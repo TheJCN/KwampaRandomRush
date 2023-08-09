@@ -1,18 +1,24 @@
 package jcn.kwamparr;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import static org.bukkit.configuration.file.YamlConfiguration.loadConfiguration;
 
 public final class KwampaRR extends JavaPlugin {
+
     private static  String PLUGINPREFIX = "[KwampaRR]";
-    private Logger logger;
+    private Logger logger = Bukkit.getLogger();
 
     private GameManager gameManager;
+    private List<Player> playerList;
+
 
     @Override
     public void onEnable() {
@@ -20,6 +26,8 @@ public final class KwampaRR extends JavaPlugin {
         logger.info(PLUGINPREFIX + " запущен");
 
         this.gameManager = new GameManager(this);
+        this.playerList = new ArrayList<>();
+
 
         File dataFolder = getDataFolder();
         if (!dataFolder.exists()) {
@@ -30,6 +38,9 @@ public final class KwampaRR extends JavaPlugin {
         if (!configFile.exists()) {
             saveDefaultConfig();
         }
+
+        Bukkit.getPluginManager().registerEvents(new Waiting(gameManager, this), this);
+        Bukkit.getPluginManager().registerEvents(new AcitveGame(gameManager, playerList, this), this);
 
     }
 

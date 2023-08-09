@@ -14,9 +14,11 @@ import java.util.List;
 public class Waiting implements Listener {
     private List<Player> playerList = new ArrayList<>();
     private  GameManager gameManager;
+    private  KwampaRR plugin;
 
-    public Waiting (GameManager gameManager){
+    public Waiting (GameManager gameManager, KwampaRR plugin){
         this.gameManager = gameManager;
+        this.plugin = plugin;
     }
 
     @EventHandler
@@ -26,8 +28,8 @@ public class Waiting implements Listener {
         }
         Player player = event.getPlayer();
         playerList.add(player);
-        if(playerList.size() == 2){
-            Bukkit.broadcastMessage("Игра начинается! Приготевтесь!");
+        if(playerList.size() < 2){
+            Bukkit.broadcastMessage("Игра начинается! Приготовтесь!");
             gameManager.setGameState(GameState.Teleporting);
             TimeBeforeGame(playerList);
         }
@@ -58,13 +60,14 @@ public class Waiting implements Listener {
                     } else {
                         Bukkit.broadcastMessage("Игра началалась!");
                         gameManager.setGameState(GameState.Active);
-                        AcitveGame acitveGame = new AcitveGame(gameManager, playerList);
+                        AcitveGame acitveGame = new AcitveGame(gameManager, playerList, plugin);
+                        acitveGame.LogicGame();
                     }
                 }
                 else {
                     this.cancel();
                 }
             }
-        }.runTaskTimer(Bukkit.getPluginManager().getPlugin("RandonRR"), 0,20L);
+        }.runTaskTimer(Bukkit.getPluginManager().getPlugin("KwampaRR"), 0,20L);
     }
 }
