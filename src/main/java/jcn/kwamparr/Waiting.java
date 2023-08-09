@@ -1,6 +1,7 @@
 package jcn.kwamparr;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -24,11 +25,12 @@ public class Waiting implements Listener {
     @EventHandler
     public void opPlayerJoin(PlayerJoinEvent event){
         if(gameManager.getGameState() != GameState.Waiting) {
+            event.getPlayer().setGameMode(GameMode.SPECTATOR);
             return;
         }
         Player player = event.getPlayer();
         playerList.add(player);
-        if(playerList.size() < 2){
+        if(playerList.size() >= 2){
             Bukkit.broadcastMessage("Игра начинается! Приготовтесь!");
             gameManager.setGameState(GameState.Teleporting);
             TimeBeforeGame(playerList);
@@ -42,7 +44,7 @@ public class Waiting implements Listener {
         }
         Player player = event.getPlayer();
         playerList.remove(player);
-        if(playerList.size() < 2){
+        if(playerList.size() >= 2){
             gameManager.setGameState(GameState.Waiting);
         }
     }
