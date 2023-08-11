@@ -2,6 +2,7 @@ package jcn.kwamparr;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -11,11 +12,14 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
+import java.util.logging.Logger;
 
 public class Waiting implements Listener {
     private List<Player> playerList = new ArrayList<>();
     private  GameManager gameManager;
     private  KwampaRR plugin;
+    private Logger logger = Bukkit.getLogger();
 
     public Waiting (GameManager gameManager, KwampaRR plugin){
         this.gameManager = gameManager;
@@ -24,13 +28,14 @@ public class Waiting implements Listener {
 
     @EventHandler
     public void opPlayerJoin(PlayerJoinEvent event){
+        event.getPlayer().setGameMode(GameMode.SPECTATOR);
         if(gameManager.getGameState() != GameState.Waiting) {
-            event.getPlayer().setGameMode(GameMode.SPECTATOR);
             return;
         }
         Player player = event.getPlayer();
+        player.teleport(new Location(Bukkit.getWorld("VoidWorld"), 15.5, 115, 15.5));
         playerList.add(player);
-        if(playerList.size() >= 2){
+        if(playerList.size() >= 4){
             Bukkit.broadcastMessage("Игра начинается! Приготовтесь!");
             gameManager.setGameState(GameState.Teleporting);
             TimeBeforeGame(playerList);
@@ -44,7 +49,9 @@ public class Waiting implements Listener {
         }
         Player player = event.getPlayer();
         playerList.remove(player);
-        if(playerList.size() >= 2){
+        logger.info(playerList.toString());
+        logger.info(String.valueOf(playerList.size()));
+        if(playerList.size() >= 4){
             gameManager.setGameState(GameState.Waiting);
         }
     }
@@ -64,6 +71,7 @@ public class Waiting implements Listener {
                         gameManager.setGameState(GameState.Active);
                         AcitveGame acitveGame = new AcitveGame(gameManager, playerList, plugin);
                         acitveGame.LogicGame();
+                        this.cancel();
                     }
                 }
                 else {

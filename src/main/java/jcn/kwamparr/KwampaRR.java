@@ -15,7 +15,6 @@ public final class KwampaRR extends JavaPlugin {
 
     private static  String PLUGINPREFIX = "[KwampaRR]";
     private Logger logger = Bukkit.getLogger();
-
     private GameManager gameManager;
     private List<Player> playerList;
 
@@ -32,6 +31,11 @@ public final class KwampaRR extends JavaPlugin {
         File dataFolder = getDataFolder();
         if (!dataFolder.exists()) {
             dataFolder.mkdir();
+        }
+
+        File schematicsFolder = new File(getDataFolder(), "maps");
+        if (!schematicsFolder.exists()){
+            schematicsFolder.mkdir();
         }
 
         File configFile = new File(getDataFolder(), "config.yml");

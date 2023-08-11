@@ -16,6 +16,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 import static org.bukkit.Material.*;
@@ -35,15 +36,15 @@ public class AcitveGame implements Listener{
     }
 
     public void LogicGame(){
-        List<Location> spawnloc = new ArrayList<>();
-        spawnloc.add(new Location(Bukkit.getServer().getWorld("world"),10, 0, 10)); //1
-        spawnloc.add(new Location(Bukkit.getServer().getWorld("world"),10, 0, 0)); //2
-        spawnloc.add(new Location(Bukkit.getServer().getWorld("world"),0, 0, 10)); //3
-        spawnloc.add(new Location(Bukkit.getServer().getWorld("world"),0, 0, 0)); //4
-        spawnloc.add(new Location(Bukkit.getServer().getWorld("world"),5, 0, 5)); //5
-        spawnloc.add(new Location(Bukkit.getServer().getWorld("world"),5, 0, 0)); //6
-        spawnloc.add(new Location(Bukkit.getServer().getWorld("world"),0, 0, 5)); //7
-        spawnloc.add(new Location(Bukkit.getServer().getWorld("world"),15, 0, 0)); //8
+        List<Location> spawnloc = new ArrayList<>(); //todo Все локации надо брать из конфига!
+        spawnloc.add(new Location(Bukkit.getServer().getWorld("VoidWorld"),15.5, 107, 30.5)); //1
+        spawnloc.add(new Location(Bukkit.getServer().getWorld("VoidWorld"),26.5, 107, 26.5)); //2
+        spawnloc.add(new Location(Bukkit.getServer().getWorld("VoidWorld"),30.5, 107, 15.5)); //3
+        spawnloc.add(new Location(Bukkit.getServer().getWorld("VoidWorld"),26.5, 107, 4.5)); //4
+        spawnloc.add(new Location(Bukkit.getServer().getWorld("VoidWorld"),15.5, 107, 0.5)); //5
+        spawnloc.add(new Location(Bukkit.getServer().getWorld("VoidWorld"),4.5, 107, 4.5)); //6
+        spawnloc.add(new Location(Bukkit.getServer().getWorld("VoidWorld"),0.5, 107, 15.5)); //7
+        spawnloc.add(new Location(Bukkit.getServer().getWorld("VoidWorld"),4.5, 107, 26.5)); //8
         int indexloc = 0;
         if(gameManager.getGameState() == GameState.Active){
             for(Player player : playerList){
@@ -77,28 +78,40 @@ public class AcitveGame implements Listener{
                     }
                 }
             }
-        }.runTaskTimer(plugin, 0L, 20L);
+        }.runTaskTimer(plugin, 0L, 100L);
     }
 
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event){
+        if (gameManager.getGameState() != GameState.Active){
+            return;
+        }
         Player player = event.getEntity().getPlayer();
-        playerList.remove(player);
+        playerList.remove(event.getEntity().getPlayer());
+        logger.info(String.valueOf(playerList.remove(event.getEntity().getPlayer())));
+        logger.info(playerList.toString());
         logger.info(String.valueOf(playerList.size()));
         player.setGameMode(GameMode.SPECTATOR);
-        if(playerList.isEmpty()){
+        if(playerList.size() == 1){
+            gameManager.setGameState(GameState.PreRestart);
             EndOfTheGame();
         }
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event){
+        if (gameManager.getGameState() != GameState.Active){
+            return;
+        }
         Player player = event.getPlayer();
         if(player.getGameMode() == GameMode.SURVIVAL){
-            playerList.remove(player);
+            playerList.remove(event.getPlayer());
+            logger.info(String.valueOf(playerList.remove(event.getPlayer())));
+            logger.info(playerList.toString());
             logger.info(String.valueOf(playerList.size()));
-            if (playerList.isEmpty()) {
+            if (playerList.size() == 1) {
+                gameManager.setGameState(GameState.PreRestart);
                 EndOfTheGame();
             }
         }
@@ -109,6 +122,9 @@ public class AcitveGame implements Listener{
     }
 
     public void EndOfTheGame(){
+        if(gameManager.getGameState() != GameState.PreRestart){
+            return;
+        }
         String winner = null;
         for(Player player : Bukkit.getOnlinePlayers()){
             if(player.getGameMode().equals(GameMode.SURVIVAL)){
@@ -119,30 +135,41 @@ public class AcitveGame implements Listener{
             }
         }
         Bukkit.broadcastMessage("Выиграл - " + winner);
-        gameManager.setGameState(GameState.Restart);
         TimerBeforekick();
     }
 
     public void TimerBeforekick(){
+        if(gameManager.getGameState() != GameState.PreRestart){
+            return;
+        }
         new BukkitRunnable() {
             int timer = 10;
 
             @Override
             public void run() {
                 if (timer > 0) {
-                    if(timer == 1){
-                        for(Player player : Bukkit.getOnlinePlayers()) {
-                            player.kickPlayer("Игра законченна");
-                            gameManager.setGameState(GameState.Restart);
-                        }
-                    }
-                    else {
-                        Bukkit.broadcastMessage("До окончания " + timer);
-                        timer--;
-                    }
+                    Bukkit.broadcastMessage("До окончания " + timer);
+                    timer--;
+                }
+                else{
+                    End();
+                    this.cancel();
                 }
             }
         }.runTaskTimer(Bukkit.getPluginManager().getPlugin("KwampaRR"), 0L, 20L);
-        gameManager.setGameState(GameState.Restart);
+    }
+
+    public void End(){
+        if(gameManager.getGameState() == GameState.Active) {
+
+            String mapFileName = "RR-1"; //todo Надо брать эту строку из config!
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                player.kickPlayer("Игра законченна");
+            }
+            gameManager.setGameState(GameState.Restart);
+            RestartGame restartGame = new RestartGame(plugin, gameManager);
+            restartGame.LoadMap(mapFileName);
+            playerList.clear();
+        }
     }
  }
