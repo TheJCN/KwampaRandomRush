@@ -1,9 +1,7 @@
 package jcn.kwamparr;
 
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -22,29 +20,49 @@ import java.util.logging.Logger;
 import static org.bukkit.Material.*;
 
 public class AcitveGame implements Listener{
-
+    private FileConfiguration config;
     private Logger logger = Bukkit.getLogger();
     private GameManager gameManager;
     private List<Player> playerList;
     private KwampaRR plugin;
+    private ConfigurationSection spawnCoordinates;
+    private List<Material> materials = new ArrayList<>();
+    private List<Location> spawnloc = new ArrayList<>();
 
     public AcitveGame(GameManager gameManager, List<Player> playerList, KwampaRR plugin) {
         this.gameManager = gameManager;
         this.playerList = playerList;
         this.plugin = plugin;
-
     }
 
+
     public void LogicGame(){
-        List<Location> spawnloc = new ArrayList<>(); //todo Все локации надо брать из конфига!
-        spawnloc.add(new Location(Bukkit.getServer().getWorld("VoidWorld"),15.5, 107, 30.5)); //1
-        spawnloc.add(new Location(Bukkit.getServer().getWorld("VoidWorld"),26.5, 107, 26.5)); //2
-        spawnloc.add(new Location(Bukkit.getServer().getWorld("VoidWorld"),30.5, 107, 15.5)); //3
-        spawnloc.add(new Location(Bukkit.getServer().getWorld("VoidWorld"),26.5, 107, 4.5)); //4
-        spawnloc.add(new Location(Bukkit.getServer().getWorld("VoidWorld"),15.5, 107, 0.5)); //5
-        spawnloc.add(new Location(Bukkit.getServer().getWorld("VoidWorld"),4.5, 107, 4.5)); //6
-        spawnloc.add(new Location(Bukkit.getServer().getWorld("VoidWorld"),0.5, 107, 15.5)); //7
-        spawnloc.add(new Location(Bukkit.getServer().getWorld("VoidWorld"),4.5, 107, 26.5)); //8
+        config = plugin.getConfig();
+        String worldName = config.getString("WorldName");
+        String MapCenter = config.getString("MapCenter");
+        int BorderSize = config.getInt("WorldBorderRadius");
+        int TimeToShrink = config.getInt("TimeToShrink");
+        String [] MapCenterCoordinates = MapCenter.split(", ");
+        World world = Bukkit.getWorld(worldName);
+        WorldBorder worldBorder = world.getWorldBorder();
+        worldBorder.setCenter(Double.parseDouble(MapCenterCoordinates[0]), Double.parseDouble(MapCenterCoordinates[1]));
+        worldBorder.setSize(BorderSize);
+        worldBorder.setDamageAmount(0.5);
+        worldBorder.setSize(5, TimeToShrink * 20L);
+        Bukkit.getPluginManager().registerEvents(new AcitveGame(gameManager, playerList, plugin), plugin);
+        List<String> stringList2 = config.getStringList("ListOfAllItem");
+        for(String Item : stringList2){
+            materials.add(Material.valueOf(Item));
+        }
+        List<String> stringList = config.getStringList("SpawnCoordinates");
+        for (String CordString : stringList) {
+            String[] xyz =  CordString.split(", ");
+            System.out.println(Double.parseDouble(xyz[0]));
+            System.out.println(Double.parseDouble(xyz[1]));
+            System.out.println(Double.parseDouble(xyz[2]));
+            System.out.println(Bukkit.getWorld(worldName));
+            spawnloc.add(new Location(Bukkit.getWorld(worldName), Double.parseDouble(xyz[0]), Double.parseDouble(xyz[1]), Double.parseDouble(xyz[2])));
+        }
         int indexloc = 0;
         if(gameManager.getGameState() == GameState.Active){
             for(Player player : playerList){
@@ -60,11 +78,6 @@ public class AcitveGame implements Listener{
     }
 
     public void RandomItem() {
-        List<Material> materials = new ArrayList<>();
-        materials.add(STONE);
-        materials.add(DIAMOND_SWORD);
-        materials.add(BREAD);
-
         int ValueOfItems = materials.size(); // Вычисляем размер списка materials
 
         new BukkitRunnable(){
@@ -88,9 +101,13 @@ public class AcitveGame implements Listener{
             return;
         }
         Player player = event.getEntity().getPlayer();
-        playerList.remove(event.getEntity().getPlayer());
-        logger.info(String.valueOf(playerList.remove(event.getEntity().getPlayer())));
-        logger.info(playerList.toString());
+
+        System.out.println("1" + playerList);
+
+        playerList.remove(player);
+
+        System.out.println("2" + playerList);
+
         logger.info(String.valueOf(playerList.size()));
         player.setGameMode(GameMode.SPECTATOR);
         if(playerList.size() == 1){
@@ -106,18 +123,12 @@ public class AcitveGame implements Listener{
         }
         Player player = event.getPlayer();
         if(player.getGameMode() == GameMode.SURVIVAL){
-            playerList.remove(event.getPlayer());
-            logger.info(String.valueOf(playerList.remove(event.getPlayer())));
-            logger.info(playerList.toString());
+            playerList.remove(player);
             logger.info(String.valueOf(playerList.size()));
             if (playerList.size() == 1) {
                 gameManager.setGameState(GameState.PreRestart);
                 EndOfTheGame();
             }
-        }
-        else {
-            Logger logger = Bukkit.getLogger();
-            logger.info("Кто-то юзает читы!!!!!");
         }
     }
 
@@ -125,44 +136,35 @@ public class AcitveGame implements Listener{
         if(gameManager.getGameState() != GameState.PreRestart){
             return;
         }
-        String winner = null;
-        for(Player player : Bukkit.getOnlinePlayers()){
-            if(player.getGameMode().equals(GameMode.SURVIVAL)){
-                winner = player.getName();
-            }
-            else{
-                winner = "никто";
-            }
-        }
+        String winner = playerList.get(0).getName();
         Bukkit.broadcastMessage("Выиграл - " + winner);
         TimerBeforekick();
     }
 
-    public void TimerBeforekick(){
-        if(gameManager.getGameState() != GameState.PreRestart){
-            return;
-        }
-        new BukkitRunnable() {
-            int timer = 10;
+    public void TimerBeforekick() {
+        if (gameManager.getGameState() == GameState.PreRestart) {
+            new BukkitRunnable() {
+                int timer = 10;
 
-            @Override
-            public void run() {
-                if (timer > 0) {
-                    Bukkit.broadcastMessage("До окончания " + timer);
-                    timer--;
+                @Override
+                public void run() {
+                    if (timer > 0) {
+                        Bukkit.broadcastMessage("До окончания " + timer);
+                        timer--;
+                    } else {
+                        End();
+                        this.cancel();
+                    }
                 }
-                else{
-                    End();
-                    this.cancel();
-                }
-            }
-        }.runTaskTimer(Bukkit.getPluginManager().getPlugin("KwampaRR"), 0L, 20L);
+            }.runTaskTimer(Bukkit.getPluginManager().getPlugin("KwampaRR"), 0L, 20L);
+        }
     }
 
     public void End(){
-        if(gameManager.getGameState() == GameState.Active) {
-
-            String mapFileName = "RR-1"; //todo Надо брать эту строку из config!
+        if(gameManager.getGameState() == GameState.PreRestart) {
+            config = plugin.getConfig();
+            String mapFileName = config.getString("MapName");
+            logger.info(mapFileName);
             for (Player player : Bukkit.getOnlinePlayers()) {
                 player.kickPlayer("Игра законченна");
             }

@@ -25,7 +25,6 @@ public final class KwampaRR extends JavaPlugin {
         logger.info(PLUGINPREFIX + " запущен");
 
         this.gameManager = new GameManager(this);
-        this.playerList = new ArrayList<>();
 
 
         File dataFolder = getDataFolder();
@@ -44,7 +43,6 @@ public final class KwampaRR extends JavaPlugin {
         }
 
         Bukkit.getPluginManager().registerEvents(new Waiting(gameManager, this), this);
-        Bukkit.getPluginManager().registerEvents(new AcitveGame(gameManager, playerList, this), this);
 
     }
 
