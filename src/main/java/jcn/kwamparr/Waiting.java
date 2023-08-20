@@ -13,8 +13,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
-import java.util.logging.Logger;
+import java.util.Objects;
 
 public class Waiting implements Listener {
     private int CountNeedToStart;
@@ -22,29 +21,34 @@ public class Waiting implements Listener {
     private List<Player> playerList = new ArrayList<>();
     private GameManager gameManager;
     private KwampaRR plugin;
-    private Logger logger = Bukkit.getLogger();
 
-    public Waiting (GameManager gameManager, KwampaRR plugin){
+    public Waiting(GameManager gameManager, KwampaRR plugin) {
         this.gameManager = gameManager;
         this.plugin = plugin;
     }
 
     @EventHandler
-    public void opPlayerJoin(PlayerJoinEvent event){
-        config = plugin.getConfig();
-        CountNeedToStart = config.getInt("PlayerNeedToStart");
-        event.getPlayer().setGameMode(GameMode.SPECTATOR);
-        if(gameManager.getGameState() != GameState.Waiting) {
-            return;
-        }
+    public void opPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        player.teleport(new Location(Bukkit.getWorld("VoidWorld"), 15.5, 115, 15.5));
-        playerList.add(player);
-        player.getInventory().clear();
-        if(playerList.size() >= CountNeedToStart){
-            Bukkit.broadcastMessage("Игра начинается! Приготовтесь!");
-            gameManager.setGameState(GameState.Teleporting);
-            TimeBeforeGame(playerList);
+        if (gameManager.getGameState() == GameState.Active ||  gameManager.getGameState() == GameState.Teleporting) {
+            player.setGameMode(GameMode.SPECTATOR);
+        }
+
+        if (gameManager.getGameState() == GameState.Waiting) {
+            player.teleport(new Location(Bukkit.getWorld("VoidWorld"), 0, 70, 0));
+            player.setGameMode(GameMode.ADVENTURE);
+            player.setAllowFlight(true);
+            player.getActivePotionEffects().clear();
+            player.getInventory().clear();
+            config = plugin.getConfig();
+            CountNeedToStart = config.getInt("PlayerNeedToStart");
+            playerList.add(player);
+            player.getInventory().clear();
+            if (playerList.size() >= CountNeedToStart) {
+                Bukkit.broadcastMessage("Игра начинается! Приготовтесь!");
+                gameManager.setGameState(GameState.Teleporting);
+                TimeBeforeGame(playerList);
+            }
         }
     }
 
@@ -55,8 +59,6 @@ public class Waiting implements Listener {
         }
         Player player = event.getPlayer();
         playerList.remove(player);
-        logger.info(playerList.toString());
-        logger.info(String.valueOf(playerList.size()));
         if(playerList.size() >= CountNeedToStart){
             gameManager.setGameState(GameState.Waiting);
         }
@@ -64,7 +66,7 @@ public class Waiting implements Listener {
 
     public void TimeBeforeGame(List<Player> playerList){
         new BukkitRunnable() {
-            int timer = 10;
+            int timer = 5;
 
             @Override
             public void run() {
@@ -84,6 +86,6 @@ public class Waiting implements Listener {
                     this.cancel();
                 }
             }
-        }.runTaskTimer(Bukkit.getPluginManager().getPlugin("KwampaRR"), 0,20L);
+        }.runTaskTimer(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("KwampaRR")), 0,20L);
     }
 }

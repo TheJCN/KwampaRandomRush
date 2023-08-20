@@ -1,7 +1,6 @@
 package jcn.kwamparr;
 
 import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
@@ -49,7 +48,7 @@ public class RestartGame {
 
         try (EditSession editSession = WorldEdit.getInstance().newEditSession(worldEditWorld)) {
             Operation operation = new ClipboardHolder(clipboard).createPaste(editSession)
-                    .to(BlockVector3.at(0, 100, 0)).build();
+                    .to(BlockVector3.at(0, 64, 0)).build();
             Operations.complete(operation);
         } catch (WorldEditException e) {
             throw new RuntimeException(e);

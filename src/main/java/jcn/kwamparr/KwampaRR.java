@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import static org.bukkit.configuration.file.YamlConfiguration.loadConfiguration;
-
 public final class KwampaRR extends JavaPlugin {
 
     private static  String PLUGINPREFIX = "[KwampaRR]";
@@ -43,6 +41,7 @@ public final class KwampaRR extends JavaPlugin {
         }
 
         Bukkit.getPluginManager().registerEvents(new Waiting(gameManager, this), this);
+        Bukkit.getPluginManager().registerEvents(new ClickEvent(this,gameManager), this);
 
     }
 

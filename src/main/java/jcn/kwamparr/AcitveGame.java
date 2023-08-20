@@ -3,6 +3,7 @@ package jcn.kwamparr;
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -10,18 +11,14 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.Material.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.function.Supplier;
-import java.util.logging.Logger;
 
-import static org.bukkit.Material.*;
-
-public class AcitveGame implements Listener{
+public class AcitveGame implements Listener {
     private FileConfiguration config;
-    private Logger logger = Bukkit.getLogger();
     private GameManager gameManager;
     private List<Player> playerList;
     private KwampaRR plugin;
@@ -36,27 +33,27 @@ public class AcitveGame implements Listener{
     }
 
 
-    public void LogicGame(){
+    public void LogicGame() {
         config = plugin.getConfig();
         String worldName = config.getString("WorldName");
         String MapCenter = config.getString("MapCenter");
         int BorderSize = config.getInt("WorldBorderRadius");
         int TimeToShrink = config.getInt("TimeToShrink");
-        String [] MapCenterCoordinates = MapCenter.split(", ");
+        String[] MapCenterCoordinates = MapCenter.split(", ");
         World world = Bukkit.getWorld(worldName);
         WorldBorder worldBorder = world.getWorldBorder();
         worldBorder.setCenter(Double.parseDouble(MapCenterCoordinates[0]), Double.parseDouble(MapCenterCoordinates[1]));
         worldBorder.setSize(BorderSize);
         worldBorder.setDamageAmount(0.5);
-        worldBorder.setSize(5, TimeToShrink * 20L);
+        worldBorder.setSize(5, TimeToShrink);
         Bukkit.getPluginManager().registerEvents(new AcitveGame(gameManager, playerList, plugin), plugin);
         List<String> stringList2 = config.getStringList("ListOfAllItem");
-        for(String Item : stringList2){
+        for (String Item : stringList2) {
             materials.add(Material.valueOf(Item));
         }
         List<String> stringList = config.getStringList("SpawnCoordinates");
         for (String CordString : stringList) {
-            String[] xyz =  CordString.split(", ");
+            String[] xyz = CordString.split(", ");
             System.out.println(Double.parseDouble(xyz[0]));
             System.out.println(Double.parseDouble(xyz[1]));
             System.out.println(Double.parseDouble(xyz[2]));
@@ -64,12 +61,11 @@ public class AcitveGame implements Listener{
             spawnloc.add(new Location(Bukkit.getWorld(worldName), Double.parseDouble(xyz[0]), Double.parseDouble(xyz[1]), Double.parseDouble(xyz[2])));
         }
         int indexloc = 0;
-        if(gameManager.getGameState() == GameState.Active){
-            for(Player player : playerList){
-                logger.info(playerList.toString());
+        if (gameManager.getGameState() == GameState.Active) {
+            for (Player player : playerList) {
                 player.sendTitle("Одиночный режим", "Тимминг запрещен!");
                 player.setGameMode(GameMode.SURVIVAL);
-                player.getInventory().clear();
+                player.setAllowFlight(false);
                 player.teleport(spawnloc.get(indexloc));
                 indexloc++;
             }
@@ -80,18 +76,40 @@ public class AcitveGame implements Listener{
     public void RandomItem() {
         int ValueOfItems = materials.size(); // Вычисляем размер списка materials
 
-        new BukkitRunnable(){
+        new BukkitRunnable() {
             @Override
             public void run() {
-                if(gameManager.getGameState() == GameState.Active){
-                    for(Player player : playerList){
+                if (gameManager.getGameState() == GameState.Active) {
+                    for (Player player : playerList) {
                         Random random = new Random();
                         int randomIndex = random.nextInt(ValueOfItems);
+                        int chance = random.nextInt(10);
+                        if (chance == 1) {
+                            player.getInventory().addItem(createRandomEnchantedItem(materials.get(randomIndex)));
+
+                            return;
+                        }
                         player.getInventory().addItem(new ItemStack(materials.get(randomIndex)));
                     }
-                }
+                } else
+                    this.cancel();
             }
         }.runTaskTimer(plugin, 0L, 100L);
+    }
+
+    private ItemStack createRandomEnchantedItem(Material material) {
+        ItemStack item = new ItemStack(material);
+
+        Enchantment[] enchantments = Enchantment.values();
+
+        Random random = new Random();
+
+        Enchantment enchantment = enchantments[random.nextInt(enchantments.length)];
+        int enchantmentLevel = random.nextInt(enchantment.getMaxLevel()) + 1;
+
+        item.addUnsafeEnchantment(enchantment, enchantmentLevel);
+
+        return item;
     }
 
 
@@ -108,7 +126,6 @@ public class AcitveGame implements Listener{
 
         System.out.println("2" + playerList);
 
-        logger.info(String.valueOf(playerList.size()));
         player.setGameMode(GameMode.SPECTATOR);
         if(playerList.size() == 1){
             gameManager.setGameState(GameState.PreRestart);
@@ -124,7 +141,6 @@ public class AcitveGame implements Listener{
         Player player = event.getPlayer();
         if(player.getGameMode() == GameMode.SURVIVAL){
             playerList.remove(player);
-            logger.info(String.valueOf(playerList.size()));
             if (playerList.size() == 1) {
                 gameManager.setGameState(GameState.PreRestart);
                 EndOfTheGame();
@@ -144,7 +160,7 @@ public class AcitveGame implements Listener{
     public void TimerBeforekick() {
         if (gameManager.getGameState() == GameState.PreRestart) {
             new BukkitRunnable() {
-                int timer = 10;
+                int timer = 5;
 
                 @Override
                 public void run() {
@@ -164,7 +180,6 @@ public class AcitveGame implements Listener{
         if(gameManager.getGameState() == GameState.PreRestart) {
             config = plugin.getConfig();
             String mapFileName = config.getString("MapName");
-            logger.info(mapFileName);
             for (Player player : Bukkit.getOnlinePlayers()) {
                 player.kickPlayer("Игра законченна");
             }
