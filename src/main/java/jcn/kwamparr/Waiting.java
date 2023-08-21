@@ -1,12 +1,14 @@
 package jcn.kwamparr;
 
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
+import org.bukkit.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -14,8 +16,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Logger;
 
-public class Waiting implements Listener {
+public class Waiting implements Listener, CommandExecutor {
     private int CountNeedToStart;
     private FileConfiguration config;
     private List<Player> playerList = new ArrayList<>();
@@ -27,19 +30,43 @@ public class Waiting implements Listener {
         this.plugin = plugin;
     }
 
+    public void registerCommand() {
+        if (plugin != null) {
+            plugin.getCommand("rrstart").setExecutor(this);
+        }
+    }
+
+    @Override
+    public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
+        Player player = (Player) commandSender;
+        if(gameManager.getGameState() == GameState.Waiting) {
+            if (playerList.size() > 1) {
+                gameManager.setGameState(GameState.Teleporting);
+                TimeBeforeGame(playerList);
+                return true;
+            }
+            player.sendMessage(ChatColor.RED + "Kоличество игроков меньше 2!");
+            return false;
+        }
+        player.sendMessage("Игра уже идет!");
+        return false;
+    }
+
     @EventHandler
     public void opPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        if (gameManager.getGameState() == GameState.Active ||  gameManager.getGameState() == GameState.Teleporting) {
-            player.setGameMode(GameMode.SPECTATOR);
-        }
-
+        if (gameManager.getGameState() == GameState.Active ||  gameManager.getGameState() == GameState.Teleporting) {player.setGameMode(GameMode.SPECTATOR);}
         if (gameManager.getGameState() == GameState.Waiting) {
-            player.teleport(new Location(Bukkit.getWorld("VoidWorld"), 0, 70, 0));
+            config = plugin.getConfig();
+            String worldName = config.getString("WorldName");
+            String MapCenter = config.getString("MapCenter");
+            String[] MapCenterCoordinates = MapCenter.split(", ");
+            player.teleport(new Location(Bukkit.getWorld(worldName),Double.parseDouble(MapCenterCoordinates[0]), 70, Double.parseDouble(MapCenterCoordinates[1])));
             player.setGameMode(GameMode.ADVENTURE);
             player.setAllowFlight(true);
             player.getActivePotionEffects().clear();
             player.getInventory().clear();
+            player.setHealth(20);
             config = plugin.getConfig();
             CountNeedToStart = config.getInt("PlayerNeedToStart");
             playerList.add(player);
@@ -87,5 +114,12 @@ public class Waiting implements Listener {
                 }
             }
         }.runTaskTimer(Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("KwampaRR")), 0,20L);
+    }
+
+    @EventHandler
+    public void OffPvp(EntityDamageByEntityEvent event){
+        if (gameManager.getGameState() == GameState.Waiting || gameManager.getGameState() == GameState.Teleporting){
+            event.setCancelled(true);
+        }
     }
 }

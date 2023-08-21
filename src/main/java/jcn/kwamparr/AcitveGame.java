@@ -3,19 +3,15 @@ package jcn.kwamparr;
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.Material.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class AcitveGame implements Listener {
     private FileConfiguration config;
@@ -23,7 +19,6 @@ public class AcitveGame implements Listener {
     private List<Player> playerList;
     private KwampaRR plugin;
     private ConfigurationSection spawnCoordinates;
-    private List<Material> materials = new ArrayList<>();
     private List<Location> spawnloc = new ArrayList<>();
 
     public AcitveGame(GameManager gameManager, List<Player> playerList, KwampaRR plugin) {
@@ -34,6 +29,8 @@ public class AcitveGame implements Listener {
 
 
     public void LogicGame() {
+        Bukkit.getPluginManager().registerEvents(new AcitveGame(gameManager, playerList, plugin), plugin);
+        Bukkit.getPluginManager().registerEvents(new ClickEvent(gameManager, playerList, plugin), plugin);
         config = plugin.getConfig();
         String worldName = config.getString("WorldName");
         String MapCenter = config.getString("MapCenter");
@@ -46,11 +43,6 @@ public class AcitveGame implements Listener {
         worldBorder.setSize(BorderSize);
         worldBorder.setDamageAmount(0.5);
         worldBorder.setSize(5, TimeToShrink);
-        Bukkit.getPluginManager().registerEvents(new AcitveGame(gameManager, playerList, plugin), plugin);
-        List<String> stringList2 = config.getStringList("ListOfAllItem");
-        for (String Item : stringList2) {
-            materials.add(Material.valueOf(Item));
-        }
         List<String> stringList = config.getStringList("SpawnCoordinates");
         for (String CordString : stringList) {
             String[] xyz = CordString.split(", ");
@@ -69,47 +61,9 @@ public class AcitveGame implements Listener {
                 player.teleport(spawnloc.get(indexloc));
                 indexloc++;
             }
-            RandomItem();
+            RandomInPlugin randomInPlugin = new RandomInPlugin(gameManager, playerList, plugin);
+            randomInPlugin.RandomItem();
         }
-    }
-
-    public void RandomItem() {
-        int ValueOfItems = materials.size(); // Вычисляем размер списка materials
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (gameManager.getGameState() == GameState.Active) {
-                    for (Player player : playerList) {
-                        Random random = new Random();
-                        int randomIndex = random.nextInt(ValueOfItems);
-                        int chance = random.nextInt(10);
-                        if (chance == 1) {
-                            player.getInventory().addItem(createRandomEnchantedItem(materials.get(randomIndex)));
-
-                            return;
-                        }
-                        player.getInventory().addItem(new ItemStack(materials.get(randomIndex)));
-                    }
-                } else
-                    this.cancel();
-            }
-        }.runTaskTimer(plugin, 0L, 100L);
-    }
-
-    private ItemStack createRandomEnchantedItem(Material material) {
-        ItemStack item = new ItemStack(material);
-
-        Enchantment[] enchantments = Enchantment.values();
-
-        Random random = new Random();
-
-        Enchantment enchantment = enchantments[random.nextInt(enchantments.length)];
-        int enchantmentLevel = random.nextInt(enchantment.getMaxLevel()) + 1;
-
-        item.addUnsafeEnchantment(enchantment, enchantmentLevel);
-
-        return item;
     }
 
 
@@ -153,7 +107,9 @@ public class AcitveGame implements Listener {
             return;
         }
         String winner = playerList.get(0).getName();
-        Bukkit.broadcastMessage("Выиграл - " + winner);
+        for(Player player : Bukkit.getOnlinePlayers()){
+            player.sendTitle(ChatColor.GOLD + "Победил - " + winner, ChatColor.WHITE + "Поздравляем его!");
+        }
         TimerBeforekick();
     }
 

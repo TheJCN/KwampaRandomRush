@@ -11,6 +11,7 @@ import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -21,6 +22,7 @@ public class RestartGame {
     private GameManager gameManager;
     private KwampaRR plugin;
     private Clipboard clipboard;
+    private FileConfiguration config;
 
     public RestartGame(KwampaRR plugin, GameManager gameManager) {
         this.plugin = plugin;
@@ -43,7 +45,9 @@ public class RestartGame {
     }
 
     public void PasteMap() {
-        org.bukkit.World bukkitWorld = Bukkit.getWorld("VoidWorld");
+        config = plugin.getConfig();
+        String worldName = config.getString("WorldName");
+        org.bukkit.World bukkitWorld = Bukkit.getWorld(worldName);
         com.sk89q.worldedit.world.World worldEditWorld = BukkitAdapter.adapt(bukkitWorld);
 
         try (EditSession editSession = WorldEdit.getInstance().newEditSession(worldEditWorld)) {
@@ -65,7 +69,9 @@ public class RestartGame {
     }
 
     public void ClearingMap(){
-        List<Entity> entityList = Bukkit.getWorld("VoidWorld").getEntities();
+        config = plugin.getConfig();
+        String worldName = config.getString("WorldName");
+        List<Entity> entityList = Bukkit.getWorld(worldName).getEntities();
         for(Entity entity : entityList){
             entity.remove();
         }
