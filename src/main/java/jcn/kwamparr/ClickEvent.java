@@ -3,7 +3,6 @@ package jcn.kwamparr;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,14 +15,19 @@ import java.util.List;
 public class ClickEvent implements Listener {
     private KwampaRR plugin;
     private  GameManager gameManager;
-    private FileConfiguration config;
     private Clipboard clipboard;
     private  List<Player> playerList;
+    private List<Material> materialList;
+    private String worldName;
+    private List<String> structureList;
 
-    public ClickEvent(GameManager gameManager, List<Player> playerList, KwampaRR plugin) {
+    public ClickEvent(GameManager gameManager, List<Player> playerList, KwampaRR plugin, List<Material> materialList, String worldName, List<String> structureList) {
         this.plugin = plugin;
         this.gameManager = gameManager;
         this.playerList = playerList;
+        this.materialList = materialList;
+        this.worldName = worldName;
+        this.structureList = structureList;
     }
 
     @EventHandler
@@ -43,25 +47,25 @@ public class ClickEvent implements Listener {
             if(itemInHand.getType().equals(Material.STRUCTURE_BLOCK)) {
                 player.sendTitle("Создание структуры", "");
                 player.getInventory().remove(Material.STRUCTURE_BLOCK);
-                RandomInPlugin randomInPlugin = new RandomInPlugin(gameManager, playerList, plugin);
+                RandomInPlugin randomInPlugin = new RandomInPlugin(gameManager, playerList, plugin, materialList, worldName, structureList);
                 randomInPlugin.RandomStructure(clickedBlock);
             }
             if(itemInHand.getType().equals(Material.COMMAND_BLOCK)) {
                 player.sendTitle("Использование комманды", "");
                 player.getInventory().remove(Material.COMMAND_BLOCK);
-                RandomInPlugin randomInPlugin = new RandomInPlugin(gameManager, playerList, plugin);
+                RandomInPlugin randomInPlugin = new RandomInPlugin(gameManager, playerList, plugin, materialList, worldName, structureList);
                 randomInPlugin.RandomCommand(player, playerList);
             }
             if(itemInHand.getType().equals(Material.CHAIN_COMMAND_BLOCK)) {
                 player.sendTitle("Использование комманды", "");
                 player.getInventory().remove(Material.CHAIN_COMMAND_BLOCK);
-                RandomInPlugin randomInPlugin = new RandomInPlugin(gameManager, playerList, plugin);
+                RandomInPlugin randomInPlugin = new RandomInPlugin(gameManager, playerList, plugin, materialList, worldName, structureList);
                 randomInPlugin.RandomCommand(player, playerList);
             }
             if(itemInHand.getType().equals(Material.REPEATING_COMMAND_BLOCK)) {
                 player.sendTitle("Использование комманды", "");
                 player.getInventory().remove(Material.REPEATING_COMMAND_BLOCK);
-                RandomInPlugin randomInPlugin = new RandomInPlugin(gameManager, playerList, plugin);
+                RandomInPlugin randomInPlugin = new RandomInPlugin(gameManager, playerList, plugin, materialList, worldName, structureList);
                 randomInPlugin.RandomCommand(player, playerList);
             }
         }

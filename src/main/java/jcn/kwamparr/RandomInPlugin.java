@@ -14,7 +14,6 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.Inventory;
@@ -34,22 +33,21 @@ public class RandomInPlugin {
     private List<Player> playerList;
     private KwampaRR plugin;
     private Clipboard clipboard;
-    private FileConfiguration config;
-    private List<Material> materials = new ArrayList<>();
+    private List<Material> materialList;
+    private String worldName;
+    private List<String> structureList;
 
-    public RandomInPlugin(GameManager gameManager, List<Player> playerList, KwampaRR plugin) {
+    public RandomInPlugin(GameManager gameManager, List<Player> playerList, KwampaRR plugin, List<Material> materialList, String worldName, List<String> structureList) {
         this.gameManager = gameManager;
         this.playerList = playerList;
         this.plugin = plugin;
+        this.materialList = materialList;
+        this.worldName = worldName;
+        this.structureList = structureList;
     }
 
     public void RandomItem() {
-        config = plugin.getConfig();
-        List<String> stringList2 = config.getStringList("ListOfAllItem");
-        for (String Item : stringList2) {
-            materials.add(Material.valueOf(Item));
-        }
-        int ValueOfItems = materials.size();
+        int ValueOfItems = materialList.size();
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -59,10 +57,10 @@ public class RandomInPlugin {
                         int randomIndex = random.nextInt(ValueOfItems);
                         int chance = random.nextInt(10);
                         if (chance == 1) {
-                            player.getInventory().addItem(RandomEnchantment(materials.get(randomIndex)));
+                            player.getInventory().addItem(RandomEnchantment(materialList.get(randomIndex)));
                             return;
                         }
-                        player.getInventory().addItem(new ItemStack(materials.get(randomIndex)));
+                        player.getInventory().addItem(new ItemStack(materialList.get(randomIndex)));
                     }
                 } else
                     this.cancel();
@@ -92,8 +90,6 @@ public class RandomInPlugin {
         double y = location.getY();
         double z = location.getZ();
 
-        config = plugin.getConfig();
-        List<String> structureList = config.getStringList("Structures");
         Random random = new Random();
         int index = random.nextInt(structureList.size());
         File structure = new File(plugin.getDataFolder(), "Structures/" + structureList.get(index) + ".schem");
@@ -105,9 +101,7 @@ public class RandomInPlugin {
             throw new RuntimeException(e);
         }
 
-        String worldName = config.getString("WorldName");
-        World bukkitWorld = Bukkit.getWorld(worldName);
-        com.sk89q.worldedit.world.World worldEditWorld = BukkitAdapter.adapt(bukkitWorld);
+        com.sk89q.worldedit.world.World worldEditWorld = BukkitAdapter.adapt(Bukkit.getWorld(worldName));
 
         try (EditSession editSession = WorldEdit.getInstance().newEditSession(worldEditWorld)) {
             Operation operation = new ClipboardHolder(clipboard).createPaste(editSession)

@@ -24,10 +24,29 @@ public class Waiting implements Listener, CommandExecutor {
     private List<Player> playerList = new ArrayList<>();
     private GameManager gameManager;
     private KwampaRR plugin;
+    private String worldName;
+    private  String mapCenter;
+    private int borderSize;
+    private int timeToShrink;
+    private String[] mapCenterCoordinates;
+    private String mapName;
+    private List<Location> spawncoord;
+    private List<Material> materialList;
+    private List<String> structureList;
 
-    public Waiting(GameManager gameManager, KwampaRR plugin) {
+
+    public Waiting(GameManager gameManager, KwampaRR plugin, String worldName, String mapCenter, int borderSize, int timeToShrink, String[] mapCenterCoordinates, String mapName, List<Location> spawncoord, List<Material> materialList, List<String> structureList) {
         this.gameManager = gameManager;
         this.plugin = plugin;
+        this.worldName = worldName;
+        this.mapCenter = mapCenter;
+        this.borderSize = borderSize;
+        this.timeToShrink = timeToShrink;
+        this.mapCenterCoordinates = mapCenterCoordinates;
+        this.mapName = mapName;
+        this.spawncoord = spawncoord;
+        this.materialList = materialList;
+        this.structureList = structureList;
     }
 
     public void registerCommand() {
@@ -57,17 +76,12 @@ public class Waiting implements Listener, CommandExecutor {
         Player player = event.getPlayer();
         if (gameManager.getGameState() == GameState.Active ||  gameManager.getGameState() == GameState.Teleporting) {player.setGameMode(GameMode.SPECTATOR);}
         if (gameManager.getGameState() == GameState.Waiting) {
-            config = plugin.getConfig();
-            String worldName = config.getString("WorldName");
-            String MapCenter = config.getString("MapCenter");
-            String[] MapCenterCoordinates = MapCenter.split(", ");
-            player.teleport(new Location(Bukkit.getWorld(worldName),Double.parseDouble(MapCenterCoordinates[0]), 70, Double.parseDouble(MapCenterCoordinates[1])));
+            player.teleport(new Location(Bukkit.getWorld(worldName),Double.parseDouble(mapCenterCoordinates[0]), 70, Double.parseDouble(mapCenterCoordinates[1])));
             player.setGameMode(GameMode.ADVENTURE);
             player.setAllowFlight(true);
             player.getActivePotionEffects().clear();
             player.getInventory().clear();
             player.setHealth(20);
-            config = plugin.getConfig();
             CountNeedToStart = config.getInt("PlayerNeedToStart");
             playerList.add(player);
             player.getInventory().clear();
@@ -108,7 +122,7 @@ public class Waiting implements Listener, CommandExecutor {
                             player.sendTitle(ChatColor.GOLD + "Игра начинается!", ChatColor.RED + "Не двигайтесь!");
                         }
                         gameManager.setGameState(GameState.Active);
-                        AcitveGame acitveGame = new AcitveGame(gameManager, playerList, plugin);
+                        AcitveGame acitveGame = new AcitveGame(gameManager, playerList, plugin, worldName, mapCenter, borderSize, timeToShrink, mapCenterCoordinates, mapName, spawncoord, materialList, structureList);
                         acitveGame.LogicGame();
                         this.cancel();
                     }
