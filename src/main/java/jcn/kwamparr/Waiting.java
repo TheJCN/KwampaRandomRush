@@ -19,7 +19,7 @@ import java.util.Objects;
 
 
 public class Waiting implements Listener, CommandExecutor {
-    private int CountNeedToStart;
+    private int countNeedToStart;
     private FileConfiguration config;
     private List<Player> playerList = new ArrayList<>();
     private GameManager gameManager;
@@ -35,7 +35,7 @@ public class Waiting implements Listener, CommandExecutor {
     private List<String> structureList;
 
 
-    public Waiting(GameManager gameManager, KwampaRR plugin, String worldName, String mapCenter, int borderSize, int timeToShrink, String[] mapCenterCoordinates, String mapName, List<Location> spawncoord, List<Material> materialList, List<String> structureList) {
+    public Waiting(GameManager gameManager, KwampaRR plugin, String worldName, String mapCenter, int borderSize, int timeToShrink, String[] mapCenterCoordinates, String mapName, List<Location> spawncoord, List<Material> materialList, List<String> structureList, int countNeedToStart) {
         this.gameManager = gameManager;
         this.plugin = plugin;
         this.worldName = worldName;
@@ -47,6 +47,7 @@ public class Waiting implements Listener, CommandExecutor {
         this.spawncoord = spawncoord;
         this.materialList = materialList;
         this.structureList = structureList;
+        this.countNeedToStart = countNeedToStart;
     }
 
     public void registerCommand() {
@@ -82,10 +83,9 @@ public class Waiting implements Listener, CommandExecutor {
             player.getActivePotionEffects().clear();
             player.getInventory().clear();
             player.setHealth(20);
-            CountNeedToStart = config.getInt("PlayerNeedToStart");
             playerList.add(player);
             player.getInventory().clear();
-            if (playerList.size() >= CountNeedToStart) {
+            if (playerList.size() >= countNeedToStart) {
                 Bukkit.broadcastMessage("Игра начинается! Приготовтесь!");
                 gameManager.setGameState(GameState.Teleporting);
                 TimeBeforeGame(playerList);
@@ -100,7 +100,7 @@ public class Waiting implements Listener, CommandExecutor {
         }
         Player player = event.getPlayer();
         playerList.remove(player);
-        if(playerList.size() >= CountNeedToStart){
+        if(playerList.size() >= countNeedToStart){
             gameManager.setGameState(GameState.Waiting);
         }
     }

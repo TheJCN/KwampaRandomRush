@@ -11,8 +11,10 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 public class ClickEvent implements Listener {
+    private Logger logger;
     private KwampaRR plugin;
     private  GameManager gameManager;
     private Clipboard clipboard;
@@ -21,13 +23,14 @@ public class ClickEvent implements Listener {
     private String worldName;
     private List<String> structureList;
 
-    public ClickEvent(GameManager gameManager, List<Player> playerList, KwampaRR plugin, List<Material> materialList, String worldName, List<String> structureList) {
+    public ClickEvent(GameManager gameManager, List<Player> playerList, KwampaRR plugin, List<Material> materialList, String worldName, List<String> structureList, Logger logger) {
         this.plugin = plugin;
         this.gameManager = gameManager;
         this.playerList = playerList;
         this.materialList = materialList;
         this.worldName = worldName;
         this.structureList = structureList;
+        this.logger = logger;
     }
 
     @EventHandler
@@ -47,25 +50,25 @@ public class ClickEvent implements Listener {
             if(itemInHand.getType().equals(Material.STRUCTURE_BLOCK)) {
                 player.sendTitle("Создание структуры", "");
                 player.getInventory().remove(Material.STRUCTURE_BLOCK);
-                RandomInPlugin randomInPlugin = new RandomInPlugin(gameManager, playerList, plugin, materialList, worldName, structureList);
+                RandomInPlugin randomInPlugin = new RandomInPlugin(gameManager, playerList, plugin, materialList, worldName, structureList, logger);
                 randomInPlugin.RandomStructure(clickedBlock);
             }
             if(itemInHand.getType().equals(Material.COMMAND_BLOCK)) {
                 player.sendTitle("Использование комманды", "");
                 player.getInventory().remove(Material.COMMAND_BLOCK);
-                RandomInPlugin randomInPlugin = new RandomInPlugin(gameManager, playerList, plugin, materialList, worldName, structureList);
+                RandomInPlugin randomInPlugin = new RandomInPlugin(gameManager, playerList, plugin, materialList, worldName, structureList, logger);
                 randomInPlugin.RandomCommand(player, playerList);
             }
             if(itemInHand.getType().equals(Material.CHAIN_COMMAND_BLOCK)) {
                 player.sendTitle("Использование комманды", "");
                 player.getInventory().remove(Material.CHAIN_COMMAND_BLOCK);
-                RandomInPlugin randomInPlugin = new RandomInPlugin(gameManager, playerList, plugin, materialList, worldName, structureList);
+                RandomInPlugin randomInPlugin = new RandomInPlugin(gameManager, playerList, plugin, materialList, worldName, structureList, logger);
                 randomInPlugin.RandomCommand(player, playerList);
             }
             if(itemInHand.getType().equals(Material.REPEATING_COMMAND_BLOCK)) {
                 player.sendTitle("Использование комманды", "");
                 player.getInventory().remove(Material.REPEATING_COMMAND_BLOCK);
-                RandomInPlugin randomInPlugin = new RandomInPlugin(gameManager, playerList, plugin, materialList, worldName, structureList);
+                RandomInPlugin randomInPlugin = new RandomInPlugin(gameManager, playerList, plugin, materialList, worldName, structureList, logger);
                 randomInPlugin.RandomCommand(player, playerList);
             }
         }

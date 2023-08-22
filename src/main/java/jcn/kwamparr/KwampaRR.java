@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -23,13 +24,13 @@ public final class KwampaRR extends JavaPlugin {
     private  String mapCenter;
     private int borderSize;
     private int timeToShrink;
-    private List<String> listMaterial;
-    private String[] mapCenterCoordinates;
     private int countNeedToStart;
-    private List<String> structureList;
-    private List<String> stringList;
-    private List<Material> materialList;
-    private List<Location> spawncoord;
+    private List<String> listMaterial = new ArrayList<>();
+    private List<String> structureList = new ArrayList<>();
+    private List<String> stringList = new ArrayList<>();
+    private List<Material> materialList = new ArrayList<>();
+    private List<Location> spawncoord = new ArrayList<>();
+    private String[] mapCenterCoordinates;
     @Override
     public void onEnable() {
         logger.info(PLUGINPREFIX + " запущен");
@@ -73,7 +74,7 @@ public final class KwampaRR extends JavaPlugin {
             saveDefaultConfig();
         }
 
-        this.waiting = new Waiting(gameManager, this, worldName, mapCenter, borderSize, timeToShrink, mapCenterCoordinates, mapName, spawncoord, materialList, structureList);
+        this.waiting = new Waiting(gameManager, this, worldName, mapCenter, borderSize, timeToShrink, mapCenterCoordinates, mapName, spawncoord, materialList, structureList, countNeedToStart);
         waiting.registerCommand();
         Bukkit.getPluginManager().registerEvents(waiting, this);
 

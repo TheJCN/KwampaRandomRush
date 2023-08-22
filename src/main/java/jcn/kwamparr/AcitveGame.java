@@ -10,8 +10,10 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class AcitveGame implements Listener {
+    private Logger logger;
     private GameManager gameManager;
     private List<Player> playerList;
     private KwampaRR plugin;
@@ -43,7 +45,7 @@ public class AcitveGame implements Listener {
 
     public void LogicGame() {
         Bukkit.getPluginManager().registerEvents(new AcitveGame(gameManager, playerList, plugin, worldName, mapCenter, borderSize, timeToShrink, mapCenterCoordinates, mapName, spawncoord, materialList, structureList), plugin);
-        Bukkit.getPluginManager().registerEvents(new ClickEvent(gameManager, playerList, plugin, materialList, worldName, structureList), plugin);
+        Bukkit.getPluginManager().registerEvents(new ClickEvent(gameManager, playerList, plugin, materialList, worldName, structureList, logger), plugin);
         World world = Bukkit.getWorld(worldName);
         WorldBorder worldBorder = world.getWorldBorder();
         worldBorder.setCenter(Double.parseDouble(mapCenterCoordinates[0]), Double.parseDouble(mapCenterCoordinates[1]));
@@ -59,7 +61,7 @@ public class AcitveGame implements Listener {
                 player.teleport(spawncoord.get(indexloc));
                 indexloc++;
             }
-            RandomInPlugin randomInPlugin = new RandomInPlugin(gameManager, playerList, plugin, materialList, worldName, structureList);
+            RandomInPlugin randomInPlugin = new RandomInPlugin(gameManager, playerList, plugin, materialList, worldName, structureList, logger);
             randomInPlugin.RandomItem();
         }
     }

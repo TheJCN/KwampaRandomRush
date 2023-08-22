@@ -29,6 +29,7 @@ import java.util.*;
 import java.util.logging.Logger;
 
 public class RandomInPlugin {
+    private  Logger logger;
     private GameManager gameManager;
     private List<Player> playerList;
     private KwampaRR plugin;
@@ -37,13 +38,14 @@ public class RandomInPlugin {
     private String worldName;
     private List<String> structureList;
 
-    public RandomInPlugin(GameManager gameManager, List<Player> playerList, KwampaRR plugin, List<Material> materialList, String worldName, List<String> structureList) {
+    public RandomInPlugin(GameManager gameManager, List<Player> playerList, KwampaRR plugin, List<Material> materialList, String worldName, List<String> structureList, Logger logger) {
         this.gameManager = gameManager;
         this.playerList = playerList;
         this.plugin = plugin;
         this.materialList = materialList;
         this.worldName = worldName;
         this.structureList = structureList;
+        this.logger = logger;
     }
 
     public void RandomItem() {
@@ -113,7 +115,6 @@ public class RandomInPlugin {
     }
 
     public void RandomCommand(Player useCommandBlock, List<Player> playerList){
-        Logger logger = Bukkit.getLogger();
         Random random = new Random();
         int RandomIndex = random.nextInt(playerList.size());
         Player randomPlayer = playerList.get(RandomIndex);
