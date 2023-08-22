@@ -16,7 +16,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Logger;
+
 
 public class Waiting implements Listener, CommandExecutor {
     private int CountNeedToStart;
@@ -99,10 +99,14 @@ public class Waiting implements Listener, CommandExecutor {
             public void run() {
                 if(gameManager.getGameState() == GameState.Teleporting) {
                     if (timer > 0) {
-                        Bukkit.broadcastMessage("Телепортируем через " + timer);
+                        for(Player player : playerList) {
+                            player.sendTitle(ChatColor.GOLD + "Телепортируем через " + timer, ChatColor.RED +  "Не двигайтесь!");
+                        }
                         timer--;
                     } else {
-                        Bukkit.broadcastMessage("Игра началалась!");
+                        for(Player player : playerList) {
+                            player.sendTitle(ChatColor.GOLD + "Игра начинается!", ChatColor.RED + "Не двигайтесь!");
+                        }
                         gameManager.setGameState(GameState.Active);
                         AcitveGame acitveGame = new AcitveGame(gameManager, playerList, plugin);
                         acitveGame.LogicGame();

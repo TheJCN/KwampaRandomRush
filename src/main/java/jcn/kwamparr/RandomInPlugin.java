@@ -17,6 +17,7 @@ import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -25,9 +26,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.logging.Logger;
 
 public class RandomInPlugin {
     private GameManager gameManager;
@@ -49,7 +49,7 @@ public class RandomInPlugin {
         for (String Item : stringList2) {
             materials.add(Material.valueOf(Item));
         }
-        int ValueOfItems = materials.size(); // Вычисляем размер списка materials
+        int ValueOfItems = materials.size();
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -60,7 +60,6 @@ public class RandomInPlugin {
                         int chance = random.nextInt(10);
                         if (chance == 1) {
                             player.getInventory().addItem(RandomEnchantment(materials.get(randomIndex)));
-
                             return;
                         }
                         player.getInventory().addItem(new ItemStack(materials.get(randomIndex)));
@@ -120,28 +119,50 @@ public class RandomInPlugin {
     }
 
     public void RandomCommand(Player useCommandBlock, List<Player> playerList){
+        Logger logger = Bukkit.getLogger();
         Random random = new Random();
         int RandomIndex = random.nextInt(playerList.size());
         Player randomPlayer = playerList.get(RandomIndex);
         Random randoAction = new Random();
-        int RandomActionNumber = randoAction.nextInt(4);
-        if(RandomActionNumber == 1){
-            RandomSpawnMob(randomPlayer, useCommandBlock);
-        }
-        else if(RandomActionNumber == 2){
-            RandomSpawnLighting(randomPlayer, useCommandBlock);
-        }
-        else if(RandomActionNumber == 3){
-            RandomEffectGive(randomPlayer, useCommandBlock);
-        }
-        else if(RandomActionNumber == 4){
-            RandomKill(randomPlayer, useCommandBlock);
+        int RandomActionNumber = randoAction.nextInt(6);
+        switch (RandomActionNumber) {
+            case 1:
+                RandomSpawnMob(randomPlayer, useCommandBlock);
+                logger.info("Ранодомный спавн моба");
+                break;
+            case 2:
+                RandomSpawnLighting(randomPlayer, useCommandBlock);
+                logger.info("Ранодомный спавн молнии");
+                break;
+            case 3:
+                RandomEffectGive(randomPlayer, useCommandBlock);
+                logger.info("Ранодомная выдача эффекта");
+                break;
+            case 4:
+                RandomKill(randomPlayer, useCommandBlock);
+                logger.info("Ранодомное убийство игрока");
+                break;
+            case 5:
+                RandomSwap(randomPlayer, useCommandBlock, playerList);
+                logger.info("Игроки рандомно меняются местами");
+                break;
+            case 6:
+                RandomSwapInventory(randomPlayer, useCommandBlock, playerList);
+                logger.info("Рандомная смена инвентаря");
+                break;
         }
     }
 
     public void RandomSpawnMob(Player targetPlayer, Player useCommandBlock) {
-        List<EntityType> entityType = List.of(EntityType.values());
+        List<EntityType> entityType = new ArrayList<>(Arrays.asList(EntityType.values()));
         entityType.remove(EntityType.PLAYER);
+        Iterator<EntityType> iterator = entityType.iterator();
+        while (iterator.hasNext()) {
+            EntityType entityType1 = iterator.next();
+            if (entityType1.isSpawnable() && entityType1.isAlive()) {
+                iterator.remove();
+            }
+        }
 
         Random random = new Random();
         int randomIndex = random.nextInt(entityType.size());
@@ -170,7 +191,6 @@ public class RandomInPlugin {
         List<PotionEffectType> potionEffectsType = List.of(PotionEffectType.values());
         Random random = new Random();
         int randomIndex = random.nextInt(potionEffectsType.size());
-
         PotionEffectType randomEffectType = potionEffectsType.get(randomIndex);
         int randomDuration = random.nextInt(20) + 1;
         int randomAmplifier = random.nextInt(5) + 1;
@@ -187,6 +207,33 @@ public class RandomInPlugin {
         for(Player player : Bukkit.getOnlinePlayers()){
             player.sendTitle(ChatColor.GOLD + "Игрок " + targetPlayer.getName() + " умер  от командного блока", ChatColor.RESET + "В этом виноват: " + useCommandBlock.getName());
         }
+    }
 
+    public  void RandomSwap(Player targetPlayer, Player useCommandBlock, List<Player> playerList) {
+        Random random = new Random();
+        int randomIndex = random.nextInt(playerList.size());
+        Player targetPlayer2 = playerList.get(randomIndex);
+        Location firsplayer = targetPlayer.getLocation();
+        Location secondplayer = targetPlayer2.getLocation();
+        targetPlayer.teleport(secondplayer);
+        targetPlayer2.teleport(firsplayer);
+        for(Player player : Bukkit.getOnlinePlayers()){
+            player.sendTitle(ChatColor.GOLD + "Игрок " + targetPlayer.getName() + " поменялся местами с " + targetPlayer2.getName(), ChatColor.RESET + "В этом виноват: " + useCommandBlock.getName());
+        }
+    }
+
+    public  void RandomSwapInventory(Player targetPlayer, Player useCommandBlock, List<Player> playerList){
+        Random random = new Random();
+        int randomIndex = random.nextInt(playerList.size());
+        Player targetPlayer2 = playerList.get(randomIndex);
+        ItemStack[] firstinventory = targetPlayer.getInventory().getContents().clone();
+        ItemStack[] secondinventory = targetPlayer2.getInventory().getContents().clone();
+        targetPlayer.getInventory().clear();
+        targetPlayer.getInventory().setContents(secondinventory);
+        targetPlayer2.getInventory().clear();
+        targetPlayer2.getInventory().setContents(firstinventory);
+        for(Player player : Bukkit.getOnlinePlayers()){
+            player.sendTitle(ChatColor.GOLD + "Игрок " + targetPlayer.getName() + " поменялся инвентарями с " + targetPlayer2.getName(), ChatColor.RESET + "В этом виноват: " + useCommandBlock.getName());
+        }
     }
 }

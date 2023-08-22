@@ -1,7 +1,6 @@
 package jcn.kwamparr;
 
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -13,7 +12,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
-import java.util.logging.Logger;
 
 public class ClickEvent implements Listener {
     private KwampaRR plugin;

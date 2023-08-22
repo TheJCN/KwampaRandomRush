@@ -46,10 +46,6 @@ public class AcitveGame implements Listener {
         List<String> stringList = config.getStringList("SpawnCoordinates");
         for (String CordString : stringList) {
             String[] xyz = CordString.split(", ");
-            System.out.println(Double.parseDouble(xyz[0]));
-            System.out.println(Double.parseDouble(xyz[1]));
-            System.out.println(Double.parseDouble(xyz[2]));
-            System.out.println(Bukkit.getWorld(worldName));
             spawnloc.add(new Location(Bukkit.getWorld(worldName), Double.parseDouble(xyz[0]), Double.parseDouble(xyz[1]), Double.parseDouble(xyz[2])));
         }
         int indexloc = 0;
@@ -73,13 +69,7 @@ public class AcitveGame implements Listener {
             return;
         }
         Player player = event.getEntity().getPlayer();
-
-        System.out.println("1" + playerList);
-
         playerList.remove(player);
-
-        System.out.println("2" + playerList);
-
         player.setGameMode(GameMode.SPECTATOR);
         if(playerList.size() == 1){
             gameManager.setGameState(GameState.PreRestart);
@@ -110,7 +100,12 @@ public class AcitveGame implements Listener {
         for(Player player : Bukkit.getOnlinePlayers()){
             player.sendTitle(ChatColor.GOLD + "Победил - " + winner, ChatColor.WHITE + "Поздравляем его!");
         }
-        TimerBeforekick();
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                TimerBeforekick();
+            }
+        }.runTaskLater(plugin, 20);
     }
 
     public void TimerBeforekick() {
@@ -119,30 +114,44 @@ public class AcitveGame implements Listener {
                 int timer = 5;
 
                 @Override
-                public void run() {
+                public void run () {
                     if (timer > 0) {
-                        Bukkit.broadcastMessage("До окончания " + timer);
+                        for (Player player : Bukkit.getOnlinePlayers()) {
+                            player.sendTitle("До окончания " + timer, "");
+                        }
                         timer--;
                     } else {
+                        for (Player player : Bukkit.getOnlinePlayers()) {
+                            player.sendTitle(ChatColor.GOLD + "Загрузка карты!", "Пожалуйста подождите");
+                        }
                         End();
                         this.cancel();
                     }
                 }
-            }.runTaskTimer(Bukkit.getPluginManager().getPlugin("KwampaRR"), 0L, 20L);
+            }.runTaskTimer(plugin, 0L,20L);
         }
     }
 
     public void End(){
         if(gameManager.getGameState() == GameState.PreRestart) {
             config = plugin.getConfig();
+            String worldName = config.getString("WorldName");
             String mapFileName = config.getString("MapName");
+            String MapCenter = config.getString("MapCenter");
+            String[] MapCenterCoordinates = MapCenter.split(", ");
+            playerList.clear();
             for (Player player : Bukkit.getOnlinePlayers()) {
-                player.kickPlayer("Игра законченна");
+                playerList.add(player);
+                player.setGameMode(GameMode.ADVENTURE);
+                player.teleport(new Location(Bukkit.getWorld(worldName),Double.parseDouble(MapCenterCoordinates[0]), 70, Double.parseDouble(MapCenterCoordinates[1])));
+                player.setHealth(20);
+                player.setSaturation(20);
+                player.getInventory().clear();
+                player.setAllowFlight(true);
             }
             gameManager.setGameState(GameState.Restart);
             RestartGame restartGame = new RestartGame(plugin, gameManager);
             restartGame.LoadMap(mapFileName);
-            playerList.clear();
         }
     }
  }

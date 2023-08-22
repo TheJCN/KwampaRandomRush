@@ -11,8 +11,11 @@ import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import org.bukkit.Bukkit;
+import org.bukkit.World;
+import org.bukkit.WorldBorder;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.*;
@@ -73,7 +76,12 @@ public class RestartGame {
         String worldName = config.getString("WorldName");
         List<Entity> entityList = Bukkit.getWorld(worldName).getEntities();
         for(Entity entity : entityList){
-            entity.remove();
+            if(!entity.getType().equals(EntityType.PLAYER)){
+                entity.remove();
+            }
         }
+        World world = Bukkit.getWorld(worldName);
+        WorldBorder worldBorder = world.getWorldBorder();
+        worldBorder.setSize(1000);
     }
 }
