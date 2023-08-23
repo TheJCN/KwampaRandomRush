@@ -24,6 +24,12 @@ Structures:
   - 'RR-BrokenTexture'
   - 'RR-Caves'
   - 'RR-RandomTexture'
+mysql:
+  host: your-mysql-host
+  port: 3306
+  database: your-mysql-database
+  username: your-mysql-username
+  password: your-mysql-password
 ListOfAllItem:
   - 'AIR'
   - 'STONE'

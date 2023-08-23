@@ -8,6 +8,8 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -26,8 +28,9 @@ public class AcitveGame implements Listener {
     private List<Location> spawncoord;
     private List<Material> materialList;
     private List<String> structureList;
+    private Connection connection;
 
-    public AcitveGame(GameManager gameManager, List<Player> playerList, KwampaRR plugin, String worldName, String mapCenter, int borderSize, int timeToShrink, String[] mapCenterCoordinates, String mapName, List<Location> spawncoord, List<Material> materialList, List<String> structureList) {
+    public AcitveGame(GameManager gameManager, List<Player> playerList, KwampaRR plugin, String worldName, String mapCenter, int borderSize, int timeToShrink, String[] mapCenterCoordinates, String mapName, List<Location> spawncoord, List<Material> materialList, List<String> structureList, Connection connection) {
         this.gameManager = gameManager;
         this.playerList = playerList;
         this.plugin = plugin;
@@ -40,11 +43,12 @@ public class AcitveGame implements Listener {
         this.spawncoord = spawncoord;
         this.materialList = materialList;
         this.structureList = structureList;
+        this.connection = connection;
     }
 
 
     public void LogicGame() {
-        Bukkit.getPluginManager().registerEvents(new AcitveGame(gameManager, playerList, plugin, worldName, mapCenter, borderSize, timeToShrink, mapCenterCoordinates, mapName, spawncoord, materialList, structureList), plugin);
+        Bukkit.getPluginManager().registerEvents(new AcitveGame(gameManager, playerList, plugin, worldName, mapCenter, borderSize, timeToShrink, mapCenterCoordinates, mapName, spawncoord, materialList, structureList, connection), plugin);
         Bukkit.getPluginManager().registerEvents(new ClickEvent(gameManager, playerList, plugin, materialList, worldName, structureList, logger), plugin);
         World world = Bukkit.getWorld(worldName);
         WorldBorder worldBorder = world.getWorldBorder();
@@ -67,13 +71,21 @@ public class AcitveGame implements Listener {
     }
 
     @EventHandler
-    public void onPlayerDeath(PlayerDeathEvent event){
+    public void onPlayerDeath(PlayerDeathEvent event) throws SQLException {
+        Player killer = event.getEntity().getPlayer().getKiller();
+        if (killer != null) {
+            Statistic statistic = new Statistic(connection);
+            statistic.addKills(killer);
+        }
+
         if (gameManager.getGameState() != GameState.Active){
             return;
         }
+
         Player player = event.getEntity().getPlayer();
         playerList.remove(player);
         player.setGameMode(GameMode.SPECTATOR);
+
         if(playerList.size() == 1){
             gameManager.setGameState(GameState.PreRestart);
             EndOfTheGame();
@@ -81,7 +93,7 @@ public class AcitveGame implements Listener {
     }
 
     @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent event){
+    public void onPlayerQuit(PlayerQuitEvent event) throws SQLException {
         if (gameManager.getGameState() != GameState.Active){
             return;
         }
@@ -95,14 +107,17 @@ public class AcitveGame implements Listener {
         }
     }
 
-    public void EndOfTheGame(){
+    public void EndOfTheGame() throws SQLException {
         if(gameManager.getGameState() != GameState.PreRestart){
             return;
         }
+        Player playerwinner = playerList.get(0);
         String winner = playerList.get(0).getName();
+        Statistic statistic = new Statistic(connection);
         for(Player player : Bukkit.getOnlinePlayers()){
             player.sendTitle(ChatColor.GOLD + "Победил - " + winner, ChatColor.WHITE + "Поздравляем его!");
         }
+        statistic.addWins(playerwinner);
         new BukkitRunnable() {
             @Override
             public void run() {

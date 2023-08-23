@@ -29,7 +29,7 @@ import java.util.*;
 import java.util.logging.Logger;
 
 public class RandomInPlugin {
-    private  Logger logger;
+    private Logger logger;
     private GameManager gameManager;
     private List<Player> playerList;
     private KwampaRR plugin;
@@ -114,7 +114,7 @@ public class RandomInPlugin {
         }
     }
 
-    public void RandomCommand(Player useCommandBlock, List<Player> playerList){
+    public void RandomCommandBlock(Player useCommandBlock, List<Player> playerList){
         Random random = new Random();
         int RandomIndex = random.nextInt(playerList.size());
         Player randomPlayer = playerList.get(RandomIndex);
@@ -123,27 +123,21 @@ public class RandomInPlugin {
         switch (RandomActionNumber) {
             case 1:
                 RandomSpawnMob(randomPlayer, useCommandBlock);
-                logger.info("Ранодомный спавн моба");
                 break;
             case 2:
                 RandomSpawnLighting(randomPlayer, useCommandBlock);
-                logger.info("Ранодомный спавн молнии");
                 break;
             case 3:
                 RandomEffectGive(randomPlayer, useCommandBlock);
-                logger.info("Ранодомная выдача эффекта");
                 break;
             case 4:
                 RandomKill(randomPlayer, useCommandBlock);
-                logger.info("Ранодомное убийство игрока");
                 break;
             case 5:
                 RandomSwap(randomPlayer, useCommandBlock, playerList);
-                logger.info("Игроки рандомно меняются местами");
                 break;
             case 6:
                 RandomSwapInventory(randomPlayer, useCommandBlock, playerList);
-                logger.info("Рандомная смена инвентаря");
                 break;
         }
     }

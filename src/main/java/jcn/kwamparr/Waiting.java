@@ -13,6 +13,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -33,9 +34,10 @@ public class Waiting implements Listener, CommandExecutor {
     private List<Location> spawncoord;
     private List<Material> materialList;
     private List<String> structureList;
+    private Connection connection;
 
 
-    public Waiting(GameManager gameManager, KwampaRR plugin, String worldName, String mapCenter, int borderSize, int timeToShrink, String[] mapCenterCoordinates, String mapName, List<Location> spawncoord, List<Material> materialList, List<String> structureList, int countNeedToStart) {
+    public Waiting(GameManager gameManager, KwampaRR plugin, String worldName, String mapCenter, int borderSize, int timeToShrink, String[] mapCenterCoordinates, String mapName, List<Location> spawncoord, List<Material> materialList, List<String> structureList, int countNeedToStart, Connection connection) {
         this.gameManager = gameManager;
         this.plugin = plugin;
         this.worldName = worldName;
@@ -48,6 +50,7 @@ public class Waiting implements Listener, CommandExecutor {
         this.materialList = materialList;
         this.structureList = structureList;
         this.countNeedToStart = countNeedToStart;
+        this.connection = connection;
     }
 
     public void registerCommand() {
@@ -75,6 +78,8 @@ public class Waiting implements Listener, CommandExecutor {
     @EventHandler
     public void opPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
+        Statistic statistic = new Statistic(connection);
+        statistic.addPlayerInDataBases(player);
         if (gameManager.getGameState() == GameState.Active ||  gameManager.getGameState() == GameState.Teleporting) {player.setGameMode(GameMode.SPECTATOR);}
         if (gameManager.getGameState() == GameState.Waiting) {
             player.teleport(new Location(Bukkit.getWorld(worldName),Double.parseDouble(mapCenterCoordinates[0]), 70, Double.parseDouble(mapCenterCoordinates[1])));
@@ -122,7 +127,7 @@ public class Waiting implements Listener, CommandExecutor {
                             player.sendTitle(ChatColor.GOLD + "Игра начинается!", ChatColor.RED + "Не двигайтесь!");
                         }
                         gameManager.setGameState(GameState.Active);
-                        AcitveGame acitveGame = new AcitveGame(gameManager, playerList, plugin, worldName, mapCenter, borderSize, timeToShrink, mapCenterCoordinates, mapName, spawncoord, materialList, structureList);
+                        AcitveGame acitveGame = new AcitveGame(gameManager, playerList, plugin, worldName, mapCenter, borderSize, timeToShrink, mapCenterCoordinates, mapName, spawncoord, materialList, structureList, connection);
                         acitveGame.LogicGame();
                         this.cancel();
                     }

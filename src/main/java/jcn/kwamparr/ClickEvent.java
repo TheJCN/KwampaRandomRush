@@ -42,7 +42,7 @@ public class ClickEvent implements Listener {
         Action action = event.getAction();
 
         if(action == Action.RIGHT_CLICK_BLOCK){
-            ItemStack itemInHand = player.getInventory().getItemInMainHand();
+                ItemStack itemInHand = player.getInventory().getItemInMainHand();
             Block clickedBlock = event.getClickedBlock();
             if(clickedBlock == null){
                 return;
@@ -57,19 +57,19 @@ public class ClickEvent implements Listener {
                 player.sendTitle("Использование комманды", "");
                 player.getInventory().remove(Material.COMMAND_BLOCK);
                 RandomInPlugin randomInPlugin = new RandomInPlugin(gameManager, playerList, plugin, materialList, worldName, structureList, logger);
-                randomInPlugin.RandomCommand(player, playerList);
+                randomInPlugin.RandomCommandBlock(player, playerList);
             }
             if(itemInHand.getType().equals(Material.CHAIN_COMMAND_BLOCK)) {
                 player.sendTitle("Использование комманды", "");
                 player.getInventory().remove(Material.CHAIN_COMMAND_BLOCK);
                 RandomInPlugin randomInPlugin = new RandomInPlugin(gameManager, playerList, plugin, materialList, worldName, structureList, logger);
-                randomInPlugin.RandomCommand(player, playerList);
+                randomInPlugin.RandomCommandBlock(player, playerList);
             }
             if(itemInHand.getType().equals(Material.REPEATING_COMMAND_BLOCK)) {
                 player.sendTitle("Использование комманды", "");
                 player.getInventory().remove(Material.REPEATING_COMMAND_BLOCK);
                 RandomInPlugin randomInPlugin = new RandomInPlugin(gameManager, playerList, plugin, materialList, worldName, structureList, logger);
-                randomInPlugin.RandomCommand(player, playerList);
+                randomInPlugin.RandomCommandBlock(player, playerList);
             }
         }
     }
