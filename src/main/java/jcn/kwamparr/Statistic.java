@@ -1,5 +1,6 @@
 package jcn.kwamparr;
 
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.sql.Connection;
@@ -22,14 +23,6 @@ public class Statistic {
         statement.close();
     }
 
-    public void addKills(Player player) throws SQLException {
-        String playername = player.getName();
-        PreparedStatement statement = connection.prepareStatement("UPDATE Stats SET kills = kills + 1  WHERE playername = ?");
-        statement.setString(1, playername);
-        statement.executeUpdate(); // Выполняем запрос к базе данных
-        statement.close(); // Закрываем PreparedStatement
-    }
-
     public void addPlayerInDataBases(Player player) {
         String playerName = player.getName();
         String query = "SELECT COUNT(*) FROM Stats WHERE playername = ?";
@@ -37,7 +30,7 @@ public class Statistic {
             preparedStatement.setString(1, playerName);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next() && resultSet.getInt(1) == 0) {
-                    String insertQuery = "INSERT INTO Stats (playername, wins, kills) VALUES (?, 0, 0)";
+                    String insertQuery = "INSERT INTO Stats (playername, wins) VALUES (?, 0)";
                     try (PreparedStatement insertStatement = connection.prepareStatement(insertQuery)) {
                         insertStatement.setString(1, playerName);
                         insertStatement.executeUpdate();
@@ -49,24 +42,24 @@ public class Statistic {
         }
     }
 
-    public List<String> getPlayerStats() {
-        List<String> playerStats = new ArrayList<>();
+    public List<String> getTopPlayersByWins(int limit) {
+        List<String> topPlayers = new ArrayList<>();
 
-        String query = "SELECT playername, kills, wins FROM Stats";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
-            while (resultSet.next()) {
-                String playerName = resultSet.getString("playername");
-                int kills = resultSet.getInt("kills");
-                int wins = resultSet.getInt("wins");
-
-                String statsLine = playerName + " - " + kills + " - " + wins;
-                playerStats.add(statsLine);
+        String query = "SELECT playername, wins FROM Stats ORDER BY wins DESC LIMIT ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, limit);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    String playerName = resultSet.getString("playername");
+                    int wins = resultSet.getInt("wins");
+                    String playerStats = "Ник: " + ChatColor.GOLD + playerName + ChatColor.RESET  + " Победы: " + ChatColor.GOLD +  wins;
+                    topPlayers.add(playerStats);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return playerStats;
+        return topPlayers;
     }
 }

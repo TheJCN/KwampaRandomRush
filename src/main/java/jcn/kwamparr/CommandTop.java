@@ -16,7 +16,9 @@ public class CommandTop implements CommandExecutor {
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
         Player player = (Player) commandSender;
         Statistic statistic = new Statistic(connection);
-        player.sendMessage(statistic.getPlayerStats().toString());
+        for(String string : statistic.getTopPlayersByWins(5)){
+            player.sendMessage(string);
+        }
         return false;
     }
 }

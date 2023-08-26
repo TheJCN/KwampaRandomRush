@@ -34,7 +34,7 @@ public class RestartGame {
 
     public void LoadMap(String mapFileName) {
         if(gameManager.getGameState() == GameState.Restart){
-            File schematicFile = new File(plugin.getDataFolder(), "maps/" + mapFileName + ".schematic");
+            File schematicFile = new File(plugin.getDataFolder(), "Maps/" + mapFileName + ".schem");
             ClipboardFormat format = ClipboardFormats.findByFile(schematicFile);
             try (ClipboardReader reader = format.getReader(new FileInputStream(schematicFile))) {
                 clipboard = reader.read();

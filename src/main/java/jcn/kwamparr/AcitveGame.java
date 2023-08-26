@@ -72,12 +72,6 @@ public class AcitveGame implements Listener {
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) throws SQLException {
-        Player killer = event.getEntity().getPlayer().getKiller();
-        if (killer != null) {
-            Statistic statistic = new Statistic(connection);
-            statistic.addKills(killer);
-        }
-
         if (gameManager.getGameState() != GameState.Active){
             return;
         }
