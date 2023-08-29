@@ -68,10 +68,10 @@ public class Waiting implements Listener, CommandExecutor {
                 TimeBeforeGame(playerList);
                 return true;
             }
-            player.sendMessage(ChatColor.RED + "Kоличество игроков меньше 2!");
+            player.sendMessage(ChatColor.RED + "Number of players is less than 2!");
             return false;
         }
-        player.sendMessage("Игра уже идет!");
+        player.sendMessage("The game is already running!");
         return false;
     }
 
@@ -91,7 +91,7 @@ public class Waiting implements Listener, CommandExecutor {
             playerList.add(player);
             player.getInventory().clear();
             if (playerList.size() >= countNeedToStart) {
-                Bukkit.broadcastMessage("Игра начинается! Приготовтесь!");
+                Bukkit.broadcastMessage("The game is starting! Get ready!");
                 gameManager.setGameState(GameState.Teleporting);
                 TimeBeforeGame(playerList);
             }
@@ -119,12 +119,12 @@ public class Waiting implements Listener, CommandExecutor {
                 if(gameManager.getGameState() == GameState.Teleporting) {
                     if (timer > 0) {
                         for(Player player : playerList) {
-                            player.sendTitle(ChatColor.GOLD + "Телепортируем через " + timer, ChatColor.RED +  "Не двигайтесь!");
+                            player.sendTitle(ChatColor.GOLD + "Teleporting in " + timer, ChatColor.RED +  "Don't move!");
                         }
                         timer--;
                     } else {
                         for(Player player : playerList) {
-                            player.sendTitle(ChatColor.GOLD + "Игра начинается!", ChatColor.RED + "Не двигайтесь!");
+                            player.sendTitle(ChatColor.GOLD + "The game is starting!", ChatColor.RED + "Don't move!");
                         }
                         gameManager.setGameState(GameState.Active);
                         AcitveGame acitveGame = new AcitveGame(gameManager, playerList, plugin, worldName, mapCenter, borderSize, timeToShrink, mapCenterCoordinates, mapName, spawncoord, materialList, structureList, connection);

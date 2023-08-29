@@ -52,7 +52,7 @@ public class Statistic {
                 while (resultSet.next()) {
                     String playerName = resultSet.getString("playername");
                     int wins = resultSet.getInt("wins");
-                    String playerStats = "Ник: " + ChatColor.GOLD + playerName + ChatColor.RESET  + " Победы: " + ChatColor.GOLD +  wins;
+                    String playerStats = "Nickname: " + ChatColor.GOLD + playerName + ChatColor.RESET  + " Wins: " + ChatColor.GOLD +  wins;
                     topPlayers.add(playerStats);
                 }
             }

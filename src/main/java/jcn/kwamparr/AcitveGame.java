@@ -59,7 +59,7 @@ public class AcitveGame implements Listener {
         int indexloc = 0;
         if (gameManager.getGameState() == GameState.Active) {
             for (Player player : playerList) {
-                player.sendTitle("Одиночный режим", "Тимминг запрещен!");
+                player.sendTitle("Single mode", "No teaming allowed!");
                 player.setGameMode(GameMode.SURVIVAL);
                 player.setAllowFlight(false);
                 player.teleport(spawncoord.get(indexloc));
@@ -109,7 +109,7 @@ public class AcitveGame implements Listener {
         String winner = playerList.get(0).getName();
         Statistic statistic = new Statistic(connection);
         for(Player player : Bukkit.getOnlinePlayers()){
-            player.sendTitle(ChatColor.GOLD + "Победил - " + winner, ChatColor.WHITE + "Поздравляем его!");
+            player.sendTitle(ChatColor.GOLD + "Winner - " + winner, ChatColor.WHITE + "Congratulations to him!");
         }
         statistic.addWins(playerwinner);
         new BukkitRunnable() {
@@ -129,12 +129,12 @@ public class AcitveGame implements Listener {
                 public void run () {
                     if (timer > 0) {
                         for (Player player : Bukkit.getOnlinePlayers()) {
-                            player.sendTitle("До окончания " + timer, "");
+                            player.sendTitle("Until the end " + timer, "");
                         }
                         timer--;
                     } else {
                         for (Player player : Bukkit.getOnlinePlayers()) {
-                            player.sendTitle(ChatColor.GOLD + "Загрузка карты!", "Пожалуйста подождите");
+                            player.sendTitle(ChatColor.GOLD + "Loading map!", "Please wait!");
                         }
                         End();
                         this.cancel();

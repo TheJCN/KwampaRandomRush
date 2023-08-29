@@ -2,8 +2,12 @@ name: KwampaRR
 version: '${project.version}'
 main: jcn.kwamparr.KwampaRR
 api-version: '1.20'
+depend: [Worldedit]
+softdepend: [Luckperms]
 commands:
   rrstart:
-    permission: startgame
+    description: Command to start the game [requires at least two players]
+    permission: rr.startgame
   top:
-    description: Топ игроков!
+    description: Top players!
+    permission: rr.top

@@ -42,9 +42,10 @@ public final class KwampaRR extends JavaPlugin {
     private Connection connection;
     @Override
     public void onEnable() {
-        logger.info(PLUGINPREFIX + " запущен");
+        logger.info(PLUGINPREFIX + " is running");
 
         File configFile = new File(getDataFolder(), "config.yml");
+
         if (!configFile.exists()) {
             saveDefaultConfig();
         }
@@ -123,7 +124,7 @@ public final class KwampaRR extends JavaPlugin {
         }
 
         if (!setupDatabase()) {
-            logger.info(PLUGINPREFIX + "Не удалось подключиться к базе данных. Плагин будет отключен.");
+            logger.info(PLUGINPREFIX + "Failed to connect to the database. The plugin will be disabled.");
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
@@ -148,7 +149,7 @@ public final class KwampaRR extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        logger.info(PLUGINPREFIX + " отключен");
+        logger.info(PLUGINPREFIX + " is disabled.");
     }
 
     private boolean setupDatabase() {
