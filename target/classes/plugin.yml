@@ -1,0 +1,11 @@
+name: KwampaRR
+version: '1.0'
+main: jcn.kwamparr.KwampaRR
+api-version: '1.20'
+commands:
+  rrstart:
+    description: Command to start the game [requires at least two players]
+    permission: rr.startgame
+  top:
+    description: Top players!
+    permission: rr.top
