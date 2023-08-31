@@ -22,22 +22,27 @@ import java.io.*;
 import java.util.List;
 
 public class RestartGame {
+    private String worldName;
     private GameManager gameManager;
     private KwampaRR plugin;
     private Clipboard clipboard;
     private FileConfiguration config;
 
-    public RestartGame(KwampaRR plugin, GameManager gameManager) {
+    public RestartGame(KwampaRR plugin, GameManager gameManager, String worldName) {
         this.plugin = plugin;
         this.gameManager = gameManager;
+        this.worldName = worldName;
     }
 
     public void LoadMap(String mapFileName) {
         if(gameManager.getGameState() == GameState.Restart){
-            File schematicFile = new File(plugin.getDataFolder(), "Maps/" + mapFileName + ".schem");
-            ClipboardFormat format = ClipboardFormats.findByFile(schematicFile);
-            try (ClipboardReader reader = format.getReader(new FileInputStream(schematicFile))) {
-                clipboard = reader.read();
+            File file = new File(plugin.getDataFolder(), "Maps/" + mapFileName + ".schem");
+            ClipboardFormat format = ClipboardFormats.findByFile(file);
+            try {
+                assert format != null;
+                try (ClipboardReader reader = format.getReader(new FileInputStream(file))) {
+                    clipboard = reader.read();
+                }
             } catch (FileNotFoundException e) {
                 throw new RuntimeException(e);
             } catch (IOException e) {
@@ -48,8 +53,6 @@ public class RestartGame {
     }
 
     public void PasteMap() {
-        config = plugin.getConfig();
-        String worldName = config.getString("WorldName");
         org.bukkit.World bukkitWorld = Bukkit.getWorld(worldName);
         com.sk89q.worldedit.world.World worldEditWorld = BukkitAdapter.adapt(bukkitWorld);
 
@@ -72,8 +75,6 @@ public class RestartGame {
     }
 
     public void ClearingMap(){
-        config = plugin.getConfig();
-        String worldName = config.getString("WorldName");
         List<Entity> entityList = Bukkit.getWorld(worldName).getEntities();
         for(Entity entity : entityList){
             if(!entity.getType().equals(EntityType.PLAYER)){

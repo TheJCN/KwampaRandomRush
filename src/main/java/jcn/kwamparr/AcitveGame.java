@@ -8,6 +8,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.io.FileNotFoundException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public class AcitveGame implements Listener {
     private List<Player> playerList;
     private KwampaRR plugin;
     private String worldName;
-    private  String mapCenter;
+    private String mapCenter;
     private int borderSize;
     private int timeToShrink;
     private String[] mapCenterCoordinates;
@@ -59,7 +60,7 @@ public class AcitveGame implements Listener {
         int indexloc = 0;
         if (gameManager.getGameState() == GameState.Active) {
             for (Player player : playerList) {
-                player.sendTitle("Одиночный режим", "Тимминг запрещен!");
+                player.sendTitle("Single mode", "No teaming allowed!");
                 player.setGameMode(GameMode.SURVIVAL);
                 player.setAllowFlight(false);
                 player.teleport(spawncoord.get(indexloc));
@@ -109,7 +110,7 @@ public class AcitveGame implements Listener {
         String winner = playerList.get(0).getName();
         Statistic statistic = new Statistic(connection);
         for(Player player : Bukkit.getOnlinePlayers()){
-            player.sendTitle(ChatColor.GOLD + "Победил - " + winner, ChatColor.WHITE + "Поздравляем его!");
+            player.sendTitle(ChatColor.GOLD + "Winner - " + winner, ChatColor.WHITE + "Congratulations to him!");
         }
         statistic.addWins(playerwinner);
         new BukkitRunnable() {
@@ -129,14 +130,18 @@ public class AcitveGame implements Listener {
                 public void run () {
                     if (timer > 0) {
                         for (Player player : Bukkit.getOnlinePlayers()) {
-                            player.sendTitle("До окончания " + timer, "");
+                            player.sendTitle("Until the end " + timer, "");
                         }
                         timer--;
                     } else {
                         for (Player player : Bukkit.getOnlinePlayers()) {
-                            player.sendTitle(ChatColor.GOLD + "Загрузка карты!", "Пожалуйста подождите");
+                            player.sendTitle(ChatColor.GOLD + "Loading map!", "Please wait!");
                         }
-                        End();
+                        try {
+                            End();
+                        } catch (FileNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
                         this.cancel();
                     }
                 }
@@ -144,7 +149,7 @@ public class AcitveGame implements Listener {
         }
     }
 
-    public void End(){
+    public void End() throws FileNotFoundException {
         if(gameManager.getGameState() == GameState.PreRestart) {
             String[] MapCenterCoordinates = mapCenter.split(", ");
             playerList.clear();
@@ -158,7 +163,7 @@ public class AcitveGame implements Listener {
                 player.setAllowFlight(true);
             }
             gameManager.setGameState(GameState.Restart);
-            RestartGame restartGame = new RestartGame(plugin, gameManager);
+            RestartGame restartGame = new RestartGame(plugin, gameManager, worldName);
             restartGame.LoadMap(mapName);
         }
     }

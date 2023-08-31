@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 public class ClickEvent implements Listener {
     private Logger logger;
     private KwampaRR plugin;
-    private  GameManager gameManager;
+    private GameManager gameManager;
     private Clipboard clipboard;
     private  List<Player> playerList;
     private List<Material> materialList;
@@ -48,25 +48,25 @@ public class ClickEvent implements Listener {
                 return;
             }
             if(itemInHand.getType().equals(Material.STRUCTURE_BLOCK)) {
-                player.sendTitle("Создание структуры", "");
+                player.sendTitle("Creating a structure", "");
                 player.getInventory().remove(Material.STRUCTURE_BLOCK);
                 RandomInPlugin randomInPlugin = new RandomInPlugin(gameManager, playerList, plugin, materialList, worldName, structureList, logger);
                 randomInPlugin.RandomStructure(clickedBlock);
             }
             if(itemInHand.getType().equals(Material.COMMAND_BLOCK)) {
-                player.sendTitle("Использование комманды", "");
+                player.sendTitle("Using a command.", "");
                 player.getInventory().remove(Material.COMMAND_BLOCK);
                 RandomInPlugin randomInPlugin = new RandomInPlugin(gameManager, playerList, plugin, materialList, worldName, structureList, logger);
                 randomInPlugin.RandomCommandBlock(player, playerList);
             }
             if(itemInHand.getType().equals(Material.CHAIN_COMMAND_BLOCK)) {
-                player.sendTitle("Использование комманды", "");
+                player.sendTitle("Using a command.", "");
                 player.getInventory().remove(Material.CHAIN_COMMAND_BLOCK);
                 RandomInPlugin randomInPlugin = new RandomInPlugin(gameManager, playerList, plugin, materialList, worldName, structureList, logger);
                 randomInPlugin.RandomCommandBlock(player, playerList);
             }
             if(itemInHand.getType().equals(Material.REPEATING_COMMAND_BLOCK)) {
-                player.sendTitle("Использование комманды", "");
+                player.sendTitle("Using a command.", "");
                 player.getInventory().remove(Material.REPEATING_COMMAND_BLOCK);
                 RandomInPlugin randomInPlugin = new RandomInPlugin(gameManager, playerList, plugin, materialList, worldName, structureList, logger);
                 randomInPlugin.RandomCommandBlock(player, playerList);

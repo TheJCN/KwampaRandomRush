@@ -27,7 +27,7 @@ Structures:
   - 'RR-Ruins'
   - 'RR-SmallCastle'
   - 'RR-Well'
-mysql: #todo Надо сделать поддежку баз SQLite
+mysql:
   host: your-mysql-host
   port: 3306
   database: your-mysql-database

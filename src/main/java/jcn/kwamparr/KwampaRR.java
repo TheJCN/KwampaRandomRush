@@ -1,5 +1,6 @@
 package jcn.kwamparr;
 
+import jdk.jpackage.internal.IOUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -7,10 +8,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -61,7 +60,11 @@ public final class KwampaRR extends JavaPlugin {
 
         File mapFile = new File(getDataFolder(), "RR-NewMap.schem");
         if (!mapFile.exists()) {
-            saveMapToMaps("RR-NewMap.schem");
+            try {
+                saveMapToMaps("RR-NewMap.schem");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         File structuresFolder = new File(getDataFolder(), "Structures");
@@ -71,42 +74,72 @@ public final class KwampaRR extends JavaPlugin {
 
         File BigCastle = new File(getDataFolder(), "RR-BigCastle.schem");
         if (!BigCastle.exists()){
-            saveMapToStructure("RR-BigCastle.schem");
+            try {
+                saveMapToStructure("RR-BigCastle.schem");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         File BrokenTexture = new File(getDataFolder(), "RR-BrokenTexture.schem");
         if (!BrokenTexture.exists()){
-            saveMapToStructure("RR-BrokenTexture.schem");
+            try {
+                saveMapToStructure("RR-BrokenTexture.schem");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         File Caves = new File(getDataFolder(), "RR-Caves.schem");
         if (!Caves.exists()){
-            saveMapToStructure("RR-Caves.schem");
+            try {
+                saveMapToStructure("RR-Caves.schem");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         File RandomTexture = new File(getDataFolder(), "RR-RandomTexture.schem");
         if (!RandomTexture.exists()){
-            saveMapToStructure("RR-RandomTexture.schem");
+            try {
+                saveMapToStructure("RR-RandomTexture.schem");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         File Ruins = new File(getDataFolder(), "RR-Ruins.schem");
         if (!Ruins.exists()){
-            saveMapToStructure("RR-Ruins.schem");
+            try {
+                saveMapToStructure("RR-Ruins.schem");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         File SmallCastle = new File(getDataFolder(), "RR-SmallCastle.schem");
         if (!SmallCastle.exists()){
-            saveMapToStructure("RR-SmallCastle.schem");
+            try {
+                saveMapToStructure("RR-SmallCastle.schem");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         File Well = new File(getDataFolder(), "RR-Well.schem");
         if (!Well.exists()){
-            saveMapToStructure("RR-Well.schem");
+            try {
+                saveMapToStructure("RR-Well.schem");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         config = getConfig();
         worldName = config.getString("WorldName");
         mapName = config.getString("MapName");
+
+
         mapCenter = config.getString("MapCenter");
         borderSize = config.getInt("WorldBorderRadius");
         timeToShrink = config.getInt("TimeToShrink");
@@ -123,7 +156,7 @@ public final class KwampaRR extends JavaPlugin {
         }
 
         if (!setupDatabase()) {
-            logger.info(PLUGINPREFIX + "Не удалось подключиться к базе данных. Плагин будет отключен.");
+            logger.info(PLUGINPREFIX + " Failed to connect to the database. The plugin will be disabled.");
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
@@ -148,7 +181,7 @@ public final class KwampaRR extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        logger.info(PLUGINPREFIX + " отключен");
+        logger.info(PLUGINPREFIX + " is disabled.");
     }
 
     private boolean setupDatabase() {
@@ -165,44 +198,23 @@ public final class KwampaRR extends JavaPlugin {
         return true;
     }
 
-    private void saveMapToMaps(String resourceName) {
+    private void saveMapToMaps(String resourceName) throws IOException {
         InputStream inputStream = getResource(resourceName);
+        FileOutputStream out = new FileOutputStream(getDataFolder() + "/Maps/" + resourceName);
 
-        if (inputStream != null) {
-            try {
-                File outFile = new File(getDataFolder() + "/Maps", resourceName);
-                FileOutputStream outputStream = new FileOutputStream(outFile);
+        inputStream.transferTo(out);
 
-                byte[] buffer = new byte[1024];
-                int length;
-                while ((length = inputStream.read(buffer)) > 0) {
-                    outputStream.write(buffer, 0, length);
-                }
-                outputStream.close();
-                inputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        out.close();
+        inputStream.close();
     }
-    private void saveMapToStructure(String resourceName) {
+
+    private void saveMapToStructure(String resourceName) throws IOException {
         InputStream inputStream = getResource(resourceName);
+        FileOutputStream out = new FileOutputStream(getDataFolder() + "/Structures/" + resourceName);
 
-        if (inputStream != null) {
-            try {
-                File outFile = new File(getDataFolder() + "/Structures", resourceName);
-                FileOutputStream outputStream = new FileOutputStream(outFile);
+        inputStream.transferTo(out);
 
-                byte[] buffer = new byte[1024];
-                int length;
-                while ((length = inputStream.read(buffer)) > 0) {
-                    outputStream.write(buffer, 0, length);
-                }
-                outputStream.close();
-                inputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        out.close();
+        inputStream.close();
     }
 }

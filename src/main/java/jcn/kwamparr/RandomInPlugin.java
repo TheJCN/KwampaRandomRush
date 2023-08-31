@@ -161,7 +161,7 @@ public class RandomInPlugin {
         LivingEntity monster = (LivingEntity) targetPlayer.getWorld().spawnEntity(targetPlayer.getLocation(), randomMonsterType);
 
         for(Player player : Bukkit.getOnlinePlayers()) {
-            player.sendTitle(ChatColor.GOLD + "Игрок " + targetPlayer.getName() + " получил случайный призванное существо", ChatColor.RESET + "В этом виноват: " + useCommandBlock.getName());
+            player.sendTitle(ChatColor.GOLD + "Player " + targetPlayer.getName() + " got a random summoned mob.", ChatColor.RESET + "Command block was used by: " + useCommandBlock.getName());
         }
     }
 
@@ -172,7 +172,7 @@ public class RandomInPlugin {
         world.strikeLightning(location);
 
         for(Player player : Bukkit.getOnlinePlayers()){
-            player.sendTitle(ChatColor.GOLD + "Игрок " + targetPlayer.getName() + " получил удар молнии", ChatColor.RESET + "В этом виноват: " + useCommandBlock.getName());
+            player.sendTitle(ChatColor.GOLD + "Player " + targetPlayer.getName() + " got a random light strike", ChatColor.RESET + "Command block was used by: " + useCommandBlock.getName());
         }
     }
 
@@ -187,14 +187,14 @@ public class RandomInPlugin {
         targetPlayer.addPotionEffect(new PotionEffect(randomEffectType, randomDuration * 20, randomAmplifier));
 
         for(Player player : Bukkit.getOnlinePlayers()){
-            player.sendTitle(ChatColor.GOLD + "Игрок " + targetPlayer.getName() + " получил случайный эффект", ChatColor.RESET + "В этом виноват: " + useCommandBlock.getName());
+            player.sendTitle(ChatColor.GOLD + "Player " + targetPlayer.getName() + " got a random effect", ChatColor.RESET + "Command block was used by: " + useCommandBlock.getName());
         }
     }
 
     public void RandomKill(Player targetPlayer, Player useCommandBlock){
         targetPlayer.damage(100);
         for(Player player : Bukkit.getOnlinePlayers()){
-            player.sendTitle(ChatColor.GOLD + "Игрок " + targetPlayer.getName() + " умер  от командного блока", ChatColor.RESET + "В этом виноват: " + useCommandBlock.getName());
+            player.sendTitle(ChatColor.GOLD + "Player " + targetPlayer.getName() + " died from command block", ChatColor.RESET + "Command block was used by: " + useCommandBlock.getName());
         }
     }
 
@@ -207,7 +207,7 @@ public class RandomInPlugin {
         targetPlayer.teleport(secondplayer);
         targetPlayer2.teleport(firsplayer);
         for(Player player : Bukkit.getOnlinePlayers()){
-            player.sendTitle(ChatColor.GOLD + "Игрок " + targetPlayer.getName() + " поменялся местами с " + targetPlayer2.getName(), ChatColor.RESET + "В этом виноват: " + useCommandBlock.getName());
+            player.sendTitle(ChatColor.GOLD + "Player " + targetPlayer.getName() + " swapped places with " + targetPlayer2.getName(), ChatColor.RESET + "Command block was used by: " + useCommandBlock.getName());
         }
     }
 
@@ -222,7 +222,7 @@ public class RandomInPlugin {
         targetPlayer2.getInventory().clear();
         targetPlayer2.getInventory().setContents(firstinventory);
         for(Player player : Bukkit.getOnlinePlayers()){
-            player.sendTitle(ChatColor.GOLD + "Игрок " + targetPlayer.getName() + " поменялся инвентарями с " + targetPlayer2.getName(), ChatColor.RESET + "В этом виноват: " + useCommandBlock.getName());
+            player.sendTitle(ChatColor.GOLD + "Player " + targetPlayer.getName() + " swapped inventory with " + targetPlayer2.getName(), ChatColor.RESET + "Command block was used by: " + useCommandBlock.getName());
         }
     }
 }
